@@ -6,7 +6,7 @@ using Gtudios.UI.MotionDrag;
 using Get.EasyCSharp;
 namespace Gtudios.UI.MotionDragContainers;
 
-public partial class MotionDragContainer<T> : TwoWayItemsTemplatedControl<T, Grid>
+public partial class MotionDragContainer<T> : TwoWaySelectableItemsTemplatedControl<T, Grid>
 {
     public Property<Orientation> ReorderOrientationProperty { get; } = new(default);
     public Property<MotionDragConnectionContext<T>?> ConnectionContextProperty { get; } = new(new());
@@ -49,9 +49,11 @@ public partial class MotionDragContainer<T> : TwoWayItemsTemplatedControl<T, Gri
     MotionDragItem<T>? CurrentManipulationItem;
     void OnConnectionContextChanged(MotionDragConnectionContext<T>? oldValue, MotionDragConnectionContext<T>? newValue)
     {
-        oldValue?.Remove(this);
-        if (IsLoaded)
-            newValue?.Add(this);
+
+        if (oldValue is not null)
+            MotionDragConnectionContext<T>.UnsafeRemove(oldValue, this);
+        if (IsLoaded && newValue is not null)
+            MotionDragConnectionContext<T>.UnsafeAdd(newValue, this);
     }
     readonly MotionDragReorderContainerController<T> AnimationController;
     internal T? ObjectFromSRI(MotionDragItem<T> item)

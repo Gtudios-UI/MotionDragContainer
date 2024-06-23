@@ -9,36 +9,24 @@
     <Import_RootNamespace>Motion Drag Containers</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)DV.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GlobalUsings.Shared.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ISelectableContainer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ItemsControlSource.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ItemsSourceWrapper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MotionDragItem\MotionDragItem.AnimatingTranslation.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MotionDragItem\MotionDragItem.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MotionDragItem\MotionDragItem.Manipulation.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MotionDragItem\MotionDragItem.PointerState.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MotionDragItem\MotionDragItem.Template.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MotionDragItem\MotionDragItem.Template.Default.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MotionDragReorderContainer\MotionDragReorderContainer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MotionDragReorderContainer\MotionDragReorderContainer.IMotionDragConnectionReceiver.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MotionDragReorderContainer\MotionDragReorderContainer.MotionDragItemMessage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MotionDragReorderContainer\MotionDragReorderContainer.Template.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MotionDragReorderContainer\MotionDragReorderContainer.Template.Default.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MotionDragSelectableContainer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MotionDragSelectableItem\MotionDragSelectableItem.Template.Default.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MotionDragSelectableItem\MotionDragSelectableItem.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Page Include="$(MSBuildThisFileDirectory)MotionDragItem\MotionDragItem.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="$(MSBuildThisFileDirectory)MotionDragReorderContainer\MotionDragReorderContainer.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="$(MSBuildThisFileDirectory)MotionDragSelectableItem\MotionDragSelectableItem.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="$(MSBuildThisFileDirectory)Resources.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
+    <Compile Include="$(MSBuildThisFileDirectory)Panels\LayoutDebugger.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Panels\OrientedStackForContainer\OrientedStackForContainer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Panels\OrientedStack\OrientedStack.cs" />
   </ItemGroup>
 </Project>

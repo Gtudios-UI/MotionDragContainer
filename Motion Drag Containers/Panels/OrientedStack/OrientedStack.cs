@@ -1,36 +1,49 @@
+using Get.Data.Properties;
 using Microsoft.UI.Xaml.Controls;
 using System.Diagnostics;
 
 namespace Get.UI.Controls.Panels;
-[AttachedProperty(typeof(GridUnitType), "LengthType", GenerateLocalOnPropertyChangedMethod = true)]
-[AttachedProperty(typeof(double), "LengthValue", GenerateLocalOnPropertyChangedMethod = true)]
-[AttachedProperty(typeof(GridLength), "Length", GenerateLocalOnPropertyChangedMethod = true)]
-[DependencyProperty<Orientation>("Orientation", GenerateLocalOnPropertyChangedMethod = true)]
+
 public partial class OrientedStack : Panel
 {
-    static partial void OnLengthChanged(DependencyObject obj, GridLength oldValue, GridLength newValue)
+    public static AttachedPropertyDefinition<DependencyObject, GridUnitType> LengthTypeProperty { get; } = new(default);
+    public static AttachedPropertyDefinition<DependencyObject, double> LengthValueProperty { get; } = new(default);
+    public static AttachedPropertyDefinition<DependencyObject, GridLength> LengthProperty { get; } = new(default);
+    static OrientedStack()
     {
-        if (GetLengthValue(obj) != newValue.Value)
-            SetLengthValue(obj, newValue.Value);
-        if (GetLengthType(obj) != newValue.GridUnitType)
-            SetLengthType(obj, newValue.GridUnitType);
+        LengthTypeProperty.ValueChanged += OnLengthTypeChanged;
+        LengthValueProperty.ValueChanged += OnLengthValueChanged;
+        LengthProperty.ValueChanged += OnLengthChanged;
+    }
+    public Property<Orientation> OrientationProperty { get; } = new(default);
+    public Orientation Orientation { get; set; }
+    public OrientedStack()
+    {
+        OrientationProperty.ValueChanged += OnOrientationChanged;
+    }
+    static void OnLengthTypeChanged(DependencyObject obj, GridUnitType oldValue, GridUnitType newValue)
+    {
+        var length = LengthProperty.GetValue(obj);
+        length = new(length.Value, newValue);
+        if (LengthProperty.GetValue(obj) != length)
+            LengthProperty.SetValue(obj, length);
+    }
+    static void OnLengthValueChanged(DependencyObject obj, double oldValue, double newValue)
+    {
+        var length = LengthProperty.GetValue(obj);
+        length = new(newValue, length.GridUnitType);
+        if (LengthProperty.GetValue(obj) != length)
+            LengthProperty.SetValue(obj, length);
+    }
+    static void OnLengthChanged(DependencyObject obj, GridLength oldValue, GridLength newValue)
+    {
+        if (LengthValueProperty.GetValue(obj) != newValue.Value)
+            LengthValueProperty.SetValue(obj, newValue.Value);
+        if (LengthTypeProperty.GetValue(obj) != newValue.GridUnitType)
+            LengthTypeProperty.SetValue(obj, newValue.GridUnitType);
         (VisualTreeHelper.GetParent(obj) as OrientedStack)?.InvalidateArrange();
     }
-    static partial void OnLengthTypeChanged(DependencyObject obj, GridUnitType oldValue, GridUnitType newValue)
-    {
-        var length = GetLength(obj);
-        length = new(length.Value, newValue);
-        if (GetLength(obj) != length)
-            SetLength(obj, length);
-    }
-    static partial void OnLengthValueChanged(DependencyObject obj, double oldValue, double newValue)
-    {
-        var length = GetLength(obj);
-        length = new(newValue, length.GridUnitType);
-        if (GetLength(obj) != length)
-            SetLength(obj, length);
-    }
-    partial void OnOrientationChanged(Orientation oldValue, Orientation newValue)
+    void OnOrientationChanged(Orientation oldValue, Orientation newValue)
     {
         InvalidateMeasure();
         InvalidateArrange();
@@ -59,7 +72,7 @@ public partial class OrientedStack : Panel
         double totalAbsolutePixel = 0, totalStar = 0, maxOpposite = 0;
         foreach (var child in Children)
         {
-            var length = GetLength(child);
+            var length = LengthProperty.GetValue(child);
             if (length.IsAuto)
             {
                 autoList.Add(child);
@@ -137,7 +150,7 @@ public partial class OrientedStack : Panel
         double totalAbsolutePixel = 0, totalStar = 0;
         foreach (var child in Children)
         {
-            var length = GetLength(child);
+            var length = LengthProperty.GetValue(child);
             if (length.IsAuto)
             {
                 var desiredSize = SizeToOF(child.DesiredSize);
@@ -162,7 +175,7 @@ public partial class OrientedStack : Panel
         
         foreach (var child in Children)
         {
-            var length = GetLength(child);
+            var length = LengthProperty.GetValue(child);
             if (length.IsAuto)
             {
                 var desiredSize = SizeToOF(child.DesiredSize);

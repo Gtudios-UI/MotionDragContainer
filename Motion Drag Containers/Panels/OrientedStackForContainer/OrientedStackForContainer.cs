@@ -1,8 +1,9 @@
-using Get.UI.Controls.Containers;
+using CommunityToolkit.WinUI;
+using Gtudios.UI.MotionDragContainers;
 
 namespace Get.UI.Controls.Panels;
 
-public partial class OrientedStackForContainer : OrientedStack
+public partial class OrientedStackForContainer<T> : OrientedStack
 {
     public OrientedStackForContainer()
     {
@@ -12,38 +13,23 @@ public partial class OrientedStackForContainer : OrientedStack
 
     private void OrientedStackForContainer_Unloaded(object sender, RoutedEventArgs e)
     {
-        @event?.Unregister();
+        parentCached.ReorderOrientationProperty.ValueChanged -= ReorderOrientationProperty_ValueChanged;
     }
-
-    DPCEvent? @event;
+    MotionDragContainer<T> parentCached;
     private void OrientedStackForContainer_Loaded(object sender, RoutedEventArgs e)
     {
-        var parent = this.FindAscendant<MotionDragContainer>();
+        var parent = this.FindAscendant<MotionDragContainer<T>>();
         if (parent is not null)
         {
-            Orientation = parent.ReorderOrientation;
-            @event?.Unregister();
-            @event = parent.RegisterPropertyChangedEvent(
-                MotionDragContainer.ReorderOrientationProperty,
-                delegate
-                {
-                    Orientation = parent.ReorderOrientation;
-                }
-            );
+            Orientation = parent.ReorderOrientationProperty.Value;
+            parent.ReorderOrientationProperty.ValueChanged -= ReorderOrientationProperty_ValueChanged;
+            parentCached = parent;
+            parent.ReorderOrientationProperty.ValueChanged += ReorderOrientationProperty_ValueChanged;
         }
     }
-    //protected override Size ArrangeOverride(Size finalSize)
-    //{
-    //    if (IsLoaded)
-    //        return base.ArrangeOverride(finalSize);
-    //    else
-    //        return finalSize;
-    //}
-    //protected override Size MeasureOverride(Size availableSize)
-    //{
-    //    if (IsLoaded)
-    //        return base.MeasureOverride(availableSize);
-    //    else
-    //        return new(double.IsInfinity(availableSize.Width) ? availableSize.Width : 100d, double.IsInfinity(availableSize.Height) ? availableSize.Height : 100d);
-    //}
+
+    private void ReorderOrientationProperty_ValueChanged(Orientation oldValue, Orientation newValue)
+    {
+        Orientation = newValue;
+    }
 }

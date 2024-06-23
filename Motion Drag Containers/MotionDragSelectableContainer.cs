@@ -1,162 +1,43 @@
 #nullable enable
-namespace Get.UI.Controls.Containers;
-//[DependencyProperty(typeof(bool), "PreferAlwaysSelectItem", GenerateLocalOnPropertyChangedMethod = true)]
+using CommunityToolkit.WinUI;
+using Get.Data.Collections.Update;
+
+namespace Gtudios.UI.MotionDragContainers;
 //[DependencyProperty(typeof(bool), "AllowMultipleSelection", GenerateLocalOnPropertyChangedMethod = true, UseNullableReferenceType = true)]
-public partial class MotionDragSelectableContainer : MotionDragContainer, ISelectableContainer
+public partial class MotionDragSelectableContainer<T> : MotionDragContainer<T>, ISelectableContainer<T?>
 {
     public MotionDragSelectableContainer()
     {
-        DefaultStyleKey = typeof(MotionDragContainer);
+        SelectedIndexProperty.ValueChanged += OnSelectedIndexChanged;
     }
-
-    protected override void OnItemsChanged(object e)
+    void OnSelectedIndexChanged(int oldValue, int newValue)
     {
-        if (PrimarySelectedItem is { } item)
-        {
-            if (ContainerFromItem(item) is null)
-            {
-                selectedItemCache = item;
-                PrimarySelectedItem = null;
-            }
-        }
-        else
-        {
-            if (selectedItemCache is not null &&
-                ContainerFromItem(selectedItemCache) is not null)
-            {
-                PrimarySelectedItem = selectedItemCache;
-                selectedItemCache = null;
-            }
-        }
-        var oldIdx = PrimarySelectedIndex;
-        if (SafeContainerFromIndex(oldIdx)?.FindDescendantOrSelf<MotionDragSelectableItem>() is { } curIdxItem)
-        {
-            if (curIdxItem.IsPrimarySelected)
-            {
-                // we don't need to update selection
-                return;
-            }
-        }
-        for (int i = 0; i < ItemsCount; i++)
-        {
-            if (SafeContainerFromIndex(i)?.FindDescendantOrSelf<MotionDragSelectableItem>() is { } theItem)
-                if (theItem.IsPrimarySelected)
-                {
-                    // we found the selected item
-                    PrimarySelectedIndex = i;
-                    while (SafeContainerFromIndex(++i)?.FindDescendantOrSelf<MotionDragSelectableItem>() is { } theItem2)
-                    {
-                        if (theItem2.IsPrimarySelected)
-                        {
-                            // wait there are multiple selected items?
-                            Debugger.Break();
-                            theItem2.IsPrimarySelected = false;
-                            return;
-                        }
-                    }
-                    return;
-                }
-        }
-        // nothing is selected anymore...
-        PrimarySelectedIndex = -1;
-    }
-    object? selectedItemCache;
-    partial void OnPrimarySelectedIndexChanged(int oldValue, int newValue)
-    {
-        if (newValue is >= 0)
-            PrimarySelectedItem = IsLoaded ?
-                ItemFromContainer(ContainerFromIndex(newValue)) :
-                (ItemsSource is IList list ? list[newValue] : Items[newValue] );
-        else
-            PrimarySelectedItem = null;
         if (oldValue is >= 0 && SafeContainerFromIndex(oldValue) is UIElement container)
         {
             if (Canvas.GetZIndex(container) is 2)
                 Canvas.SetZIndex(container, 0);
-            if (container.FindDescendantOrSelf<MotionDragSelectableItem>() is { } item)
+            if (container.FindDescendantOrSelf<MotionDragSelectableItem<T>>() is { } item)
                 item.IsPrimarySelected = false;
         }
         if (newValue is >= 0 && SafeContainerFromIndex(newValue) is UIElement container2)
         {
             if (Canvas.GetZIndex(container2) is 0)
                 Canvas.SetZIndex(container2, 2);
-            if (container2.FindDescendantOrSelf<MotionDragSelectableItem>() is { } item2)
+            if (container2.FindDescendantOrSelf<MotionDragSelectableItem<T>>() is { } item2)
                 item2.IsPrimarySelected = true;
         }
-        if (newValue is < 0 && PreferAlwaysSelectItem && ItemsCount > 0)
-        {
-            var guessNewIndex = Math.Clamp(oldValue - 1, 0, ItemsCount - 1);
-            PrimarySelectedIndex = guessNewIndex;
-        }
     }
-    partial void OnPreferAlwaysSelectItemChanged(bool oldValue, bool newValue)
-    {
-        if (newValue && PrimarySelectedIndex < 0)
-            // let's trigger PrimarySelectedIndex auto selection logic
-            PrimarySelectedIndex = -1;
-    }
-    partial void OnPrimarySelectedItemChanged(object? oldValue, object? newValue)
-    {
-        if (oldValue == newValue) return;
-        if (IsLoaded)
-        {
-            var container = SafeContainerFromIndex(PrimarySelectedIndex);
-            if ((container is null && newValue is null) ||
-                (container is not null && ItemFromContainer(container) == newValue))
-            {
-                // Everything is already taken care by index setter
-                return;
-            }
-            if (newValue == null)
-            {
-                PrimarySelectedIndex = -1;
-                return;
-            }
-            PrimarySelectedIndex = SafeIndexFromContainer(ContainerFromItem(newValue));
-            return;
-        }
-        else
-        {
-            if (newValue is null)
-            {
-                if (PrimarySelectedIndex is < 0)
-                    // this is already correct
-                    return;
-                PrimarySelectedIndex = -1;
-            }
-            if (ItemsSource is IList list)
-            {
-                if (PrimarySelectedIndex >= 0 && PrimarySelectedIndex < list.Count
-                    && list[PrimarySelectedIndex] == newValue)
-                    // this is already correct
-                    return;
-                var i = list.IndexOf(newValue);
-                if (i > 0) throw new KeyNotFoundException("The item you requested to select is not found in the list");
-                PrimarySelectedIndex = i;
-            } else
-            {
-                if (PrimarySelectedIndex >= 0 && PrimarySelectedIndex < Items.Count
-                    && Items[PrimarySelectedIndex] == newValue)
-                    // this is already correct
-                    return;
-                var i = Items.IndexOf(newValue);
-                if (i > 0) throw new KeyNotFoundException("The item you requested to select is not found in the list");
-                PrimarySelectedIndex = i;
-            }
-
-        }
-    }
-    internal bool RequestPrimarySelect(MotionDragSelectableItem item)
+    internal bool RequestPrimarySelect(MotionDragSelectableItem<T> item)
     {
         if (!item.IsSelectableItemKind) throw new NotSupportedException();
         var idx = SafeIndexFromMotionDragItem(item);
         
         if (idx is not -1)
-            PrimarySelectedIndex = idx;
+            SelectedIndex = idx;
         return idx is not -1;
     }
-    internal bool RequestSelect(MotionDragSelectableItem item) => RequestSelect(item, false, false);
-    internal bool RequestSelect(MotionDragSelectableItem item, bool shift, bool ctrl)
+    internal bool RequestSelect(MotionDragSelectableItem<T> item) => RequestSelect(item, false, false);
+    internal bool RequestSelect(MotionDragSelectableItem<T> item, bool shift, bool ctrl)
     {
         if (!item.IsSelectableItemKind) throw new NotSupportedException();
         if (shift is false && ctrl is false)
@@ -165,138 +46,43 @@ public partial class MotionDragSelectableContainer : MotionDragContainer, ISelec
         }
         return false;
     }
-    TReturn? FirstNotNullOrNull<TReturn, TSource>(IEnumerable<TSource> t, Func<TSource, TReturn?> func) where TReturn : class
+    internal bool IsPrimarySelected(MotionDragSelectableItem<T> item)
     {
-        foreach (var item in t)
-        {
-            if (func(item) is TReturn output) return output;
-        }
-        return null;
-    }
-    internal bool IsPrimarySelected(MotionDragSelectableItem item)
-    {
-        return SafeContainerFromIndex(PrimarySelectedIndex)?
-            .FindDescendantOrSelf<MotionDragSelectableItem>(
+        return SafeContainerFromIndex(SelectedIndex)?
+            .FindDescendantOrSelf<MotionDragSelectableItem<T>>(
                 x => x == item
             ) is not null;
     }
-    internal void InternalRemoveItem(MotionDragSelectableItem item)
+    int cachedSelectedIndex;
+    protected override void OnItemDroppingFromAnotherContainer(object? sender, T item, int senderIndex, int newIndex)
     {
-        foreach (var child in item.FindAscendants())
-        {
-            var idx = IndexFromContainer(child);
-            if (idx >= 0)
-            {
-                var itemSource = ItemsSource;
-                if (itemSource is null)
-                {
-                    Items.RemoveAt(idx);
-                }
-                else if (itemSource is IList list)
-                {
-                    list.RemoveAt(idx);
-                    if (list is not INotifyCollectionChanged)
-                    {
-                        // refresh ItemSource
-                        ItemsSource = null;
-                        ItemsSource = list;
-                    }
-                }
-                else
-                {
-                    throw new NotSupportedException("ItemSource must implement IList");
-                }
-                return;
-            }
-        }
-    }
-    internal object? InternalGetItemAtIndex(int idx)
-    {
-        var itemSource = ItemsSource;
-        if (itemSource is null)
-        {
-            return Items[idx];
-        }
-        else if (itemSource is IList list)
-        {
-            return list[idx];
-        }
-        else
-        {
-            throw new NotSupportedException("ItemSource must implement IList");
-        }
-    }
-    internal void InternalInsertItemAtIndex(object? obj, int idx)
-    {
-        var itemSource = ItemsSource;
-        if (itemSource is null)
-        {
-            Items.Insert(idx, obj);
-        }
-        else if (itemSource is IList list)
-        {
-            list.Insert(idx, obj);
-            if (list is not INotifyCollectionChanged)
-            {
-                // refresh ItemSource
-                ItemsSource = null;
-                ItemsSource = list;
-            }
-        }
-        else
-        {
-            throw new NotSupportedException("ItemSource must implement IList");
-        }
-    }
-    internal void InternalAddItem(object? obj)
-    {
-        var itemSource = ItemsSource;
-        if (itemSource is null)
-        {
-            Items.Add(obj);
-        }
-        else if (itemSource is IList list)
-        {
-            list.Add(obj);
-            if (list is not INotifyCollectionChanged)
-            {
-                // refresh ItemSource
-                ItemsSource = null;
-                ItemsSource = list;
-            }
-        }
-        else
-        {
-            throw new NotSupportedException("ItemSource must implement IList");
-        }
-    }
-    int cachedPrimarySelectedIndex;
-    protected override void OnItemDroppingFromAnotherContainer(object? sender, object? item, int senderIndex, int newIndex)
-    {
-        cachedPrimarySelectedIndex = PrimarySelectedIndex;
-        PrimarySelectedIndex = -1;
+        cachedSelectedIndex = SelectedIndex;
+        SelectedIndex = -1;
         base.OnItemDroppingFromAnotherContainer(sender, item, senderIndex, newIndex);
     }
-    protected override void OnItemDropFromAnotherContainer(object? sender, object? item, int senderIndex, int newIndex)
+    protected override void OnItemDropFromAnotherContainer(object? sender, T item, int senderIndex, int newIndex)
     {
         // adjust the current selection to the correct item
-        if (newIndex <= cachedPrimarySelectedIndex)
-            PrimarySelectedIndex = cachedPrimarySelectedIndex + 1;
+        if (newIndex <= cachedSelectedIndex)
+            SelectedIndex = cachedSelectedIndex + 1;
         else
-            PrimarySelectedIndex = cachedPrimarySelectedIndex;
+            SelectedIndex = cachedSelectedIndex;
         // let's see if we need to select the new item or not
-        if (sender is ISelectableContainer other && other.PrimarySelectedIndex == senderIndex)
+        if (sender is ISelectableContainer<T> other && other.SelectedIndex == senderIndex)
         {
-            PrimarySelectedIndex = newIndex;
-            other.PrimarySelectedItem = -1;
+            SelectedIndex = newIndex;
+            other.SelectedIndex = -1;
         }
         base.OnItemDropFromAnotherContainer(sender, item, senderIndex, newIndex);
     }
     int? newSelectionIndex = null;
+
+    T? ISelectableContainer<T?>.SelectedValue { get => SelectedValue; set => SelfNote.ThrowNotImplemented(); }
+
     protected override void OnItemMovingInContainer(int oldIndex, int newIndex)
     {
         if (SafeContainerFromIndex(oldIndex) is { } a &&
-            (a.FindDescendantOrSelf<MotionDragSelectableItem>()?.IsPrimarySelected ?? false))
+            (a.FindDescendantOrSelf<MotionDragSelectableItem<T>>()?.IsPrimarySelected ?? false))
         {
             newSelectionIndex = newIndex;
         } else
@@ -308,7 +94,12 @@ public partial class MotionDragSelectableContainer : MotionDragContainer, ISelec
     protected override void OnItemMovedInContainer(int oldIndex, int newIndex)
     {
         if (newSelectionIndex.HasValue)
-            PrimarySelectedIndex = newIndex;
+            SelectedIndex = newIndex;
         base.OnItemMovedInContainer(oldIndex, newIndex);
     }
+}
+interface ISelectableContainer<T>
+{
+    int SelectedIndex { get; set; }
+    T SelectedValue { get; set; }
 }

@@ -5,12 +5,12 @@ using Get.UI.Data;
 namespace Gtudios.UI.MotionDragContainers;
 partial class MotionDragContainer<T>
 {
-    static readonly ExternalControlTemplate<MotionDragContainerTempalteParts, MotionDragContainer<T>, Grid> DefaultTemplate =
+    static readonly ExternalControlTemplate<MotionDragContainerTempalteParts<T>, MotionDragContainer<T>, Grid> DefaultTemplate =
         (@this, Root) =>
         {
             Root.HorizontalAlignment = HorizontalAlignment.Left;
             Root.VerticalAlignment = VerticalAlignment.Top;
-            Root.Children.Add(new OrientedStackForContainer
+            Root.Children.Add(new OrientedStackForContainer<T>
             {
                 HorizontalAlignment = HorizontalAlignment.Left,
                 VerticalAlignment = VerticalAlignment.Top

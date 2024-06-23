@@ -5,16 +5,16 @@ using Get.UI.Controls.Panels;
 using Get.UI.Data;
 
 namespace Gtudios.UI.MotionDragContainers;
-public record struct MotionDragContainerTempalteParts(
+public record struct MotionDragContainerTempalteParts<T>(
     Grid Root,
     Popup Popup,
     UserControl Display,
-    OrientedStackForContainer Container
+    OrientedStackForContainer<T> Container
 );
 partial class MotionDragContainer<T>
 {
-    public ExternalControlTemplate<MotionDragContainerTempalteParts, MotionDragContainer<T>, Grid> ControlTemplate { get; set; } = DefaultTemplate;
-    MotionDragContainerTempalteParts TempalteParts;
+    public ExternalControlTemplate<MotionDragContainerTempalteParts<T>, MotionDragContainer<T>, Grid> ControlTemplate { get; set; } = DefaultTemplate;
+    MotionDragContainerTempalteParts<T> TempalteParts;
     protected override IGDCollection<UIElement> InitializeWithChildren(Grid TemplatedParent)
     {
         TempalteParts = ControlTemplate(this, TemplatedParent);
@@ -24,5 +24,5 @@ partial class MotionDragContainer<T>
     Grid Root => TempalteParts.Root;
     Popup Popup => TempalteParts.Popup;
     UserControl Display => TempalteParts.Display;
-    internal OrientedStackForContainer Container => TempalteParts.Container;
+    internal OrientedStackForContainer<T> Container => TempalteParts.Container;
 }

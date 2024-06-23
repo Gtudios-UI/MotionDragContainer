@@ -138,11 +138,14 @@ partial class MotionDragContainer<T> : IMotionDragConnectionReceiver<T>
     }
     private void MotionDragContainer_Unloaded(object sender, RoutedEventArgs e)
     {
-        ConnectionContext?.Remove(this);
+
+        if (ConnectionContext is { } cc)
+            MotionDragConnectionContext<T>.UnsafeRemove(cc, this);
     }
 
     private void MotionDragContainer_Loaded(object sender, RoutedEventArgs e)
     {
-        ConnectionContext?.Add(this);
+        if (ConnectionContext is { } cc)
+            MotionDragConnectionContext<T>.UnsafeAdd(cc, this);
     }
 }

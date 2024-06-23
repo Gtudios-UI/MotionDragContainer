@@ -1,10 +1,11 @@
-﻿using Get.Data.Properties;
+﻿using CommunityToolkit.WinUI;
+using Get.Data.Properties;
 using Get.UI.Data;
 
 namespace Gtudios.UI.MotionDragContainers;
 public partial class MotionDragItem<TContent> : TypedTemplateContentControl<TContent, Border>
 {
-    MotionDragContainer? Owner => this.FindAscendant<MotionDragContainer>();
+    MotionDragContainer<TContent>? Owner => this.FindAscendant<MotionDragContainer<TContent>>();
 
     public Property<bool> ReorderTranslationAnimationProperty { get; } = new(true);
     ///// <summary>

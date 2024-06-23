@@ -86,7 +86,10 @@ partial class MotionDragContainer<T>
             (float)(e.Cumulative.Translation.Y + translationRoot.Y),
         0);
         var localTranslation = translation;
-        ConnectionContext?.DragEvent(this, DraggingObject, ItemDragIndex, dp, ref localTranslation);
+        if (ConnectionContext is { } cc)
+            MotionDragConnectionContext<T>.UnsafeSendDragEvent(
+                cc, this, DraggingObject, ItemDragIndex, new(GlobalRectangle, itemRect, initmousePos, e.Cumulative.Translation), ref localTranslation
+            );
         Popup.Translation = localTranslation;
         //var hwnd = Popup.XamlRoot.ContentIslandEnvironment.AppWindowId;
         //System.Drawing.Point pt = default;
@@ -116,7 +119,9 @@ partial class MotionDragContainer<T>
         var dropManager = new MotionDragReorderContainerDropManager() {
             RemoveItemFunc = RemoveItemAsync
         };
-        ConnectionContext?.DropEvent(this, DraggingObject, ItemDragIndex, new(GlobalRectangle, itemRect, initmousePos, e.Cumulative.Translation), dropManager);
+        MotionDragConnectionContext<T>.UnsafeSendDropEvent(
+            ConnectionContext, this, DraggingObject, ItemDragIndex, new(GlobalRectangle, itemRect, initmousePos, e.Cumulative.Translation), dropManager
+        );
         await dropManager.WaitForDeferralAsync();
         if (sender is UIElement ele)
         {

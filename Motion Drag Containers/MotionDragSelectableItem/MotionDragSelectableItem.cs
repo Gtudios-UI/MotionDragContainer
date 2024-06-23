@@ -1,16 +1,17 @@
-namespace Get.UI.Controls.Containers;
+using CommunityToolkit.WinUI;
+using Get.Data.Properties;
 
-[DependencyProperty(typeof(bool), "IsSelected", GenerateLocalOnPropertyChangedMethod = true)]
-[DependencyProperty(typeof(bool), "IsPrimarySelected", GenerateLocalOnPropertyChangedMethod = true)]
+namespace Gtudios.UI.MotionDragContainers;
+
 [TemplateVisualState(GroupName = "Selection", Name = "Selected")]
 [TemplateVisualState(GroupName = "Selection", Name = "Deselected")]
 [TemplateVisualState(GroupName = "PrimarySelection", Name = "PrimarySelected")]
 [TemplateVisualState(GroupName = "PrimarySelection", Name = "PrimaryDeselected")]
 [TemplateVisualState(GroupName = "MultipleSelection", Name = "MultipleSelected")]
 [TemplateVisualState(GroupName = "MultipleSelection", Name = "MultipleDeselected")]
-public partial class MotionDragSelectableItem : MotionDragItem
+public partial class MotionDragSelectableItem<TContent> : MotionDragItem<TContent>
 {
-    MotionDragSelectableContainer? Owner => this.FindAscendant<MotionDragSelectableContainer>();
+    MotionDragSelectableContainer<TContent>? Owner => this.FindAscendant<MotionDragSelectableContainer<TContent>>();
     /// <summary>
     /// Tells whether this item kind is supposed to be selectable.
     /// </summary>
@@ -20,9 +21,25 @@ public partial class MotionDragSelectableItem : MotionDragItem
     internal protected virtual bool IsSelectableItemKind => true;
     public MotionDragSelectableItem()
     {
-        Loaded += MotionDragSelectableItem_Loaded;
-    }
+        // Change the template to selectable item's template
+        ControlTemplate = DefaultTemplate;
 
+        Loaded += MotionDragSelectableItem_Loaded;
+        IsPrimarySelectedProperty.ValueChanged += OnIsPrimarySelectedChanged;
+        IsSelectedProperty.ValueChanged += OnIsSelectedChanged;
+    }
+    public Property<bool> IsPrimarySelectedProperty = new(false);
+    public bool IsPrimarySelected
+    {
+        get => IsPrimarySelectedProperty.Value;
+        set => IsPrimarySelectedProperty.Value = value;
+    }
+    public Property<bool> IsSelectedProperty = new(false);
+    public bool IsSelected
+    {
+        get => IsSelectedProperty.Value;
+        set => IsSelectedProperty.Value = value;
+    }
     private void MotionDragSelectableItem_Loaded(object sender, RoutedEventArgs e)
     {
         if (IsPrimarySelectedAccordingToOwner ?? false)
@@ -32,7 +49,7 @@ public partial class MotionDragSelectableItem : MotionDragItem
     }
     bool? IsPrimarySelectedAccordingToOwner
         => Owner?.IsPrimarySelected(this);
-    partial void OnIsPrimarySelectedChanged(bool oldValue, bool newValue)
+    void OnIsPrimarySelectedChanged(bool oldValue, bool newValue)
     {
         if (oldValue == newValue) return;
         if (newValue) // Selected
@@ -66,7 +83,7 @@ public partial class MotionDragSelectableItem : MotionDragItem
                 VisualStateManager.GoToState(this, $"{CurrentPointerVisualState}Selected", true);
         }
     }
-    partial void OnIsSelectedChanged(bool oldValue, bool newValue)
+    void OnIsSelectedChanged(bool oldValue, bool newValue)
     {
         // Mirror IsPrimarySelected for now
         IsPrimarySelected = newValue;
@@ -95,7 +112,5 @@ public partial class MotionDragSelectableItem : MotionDragItem
             IsPrimarySelected = true;
         }
     }
-    T FindName<T>(string name) where T : DependencyObject => (T)GetTemplateChild(name);
-    Border? RootElement => FindName<Border>(nameof(RootElement));
 
 }

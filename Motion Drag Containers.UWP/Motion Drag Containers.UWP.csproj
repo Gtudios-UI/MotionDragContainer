@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{62ec7d54-e65a-4fe4-aaf2-1b0b642e52b5}</ProjectGuid>
+    <ProjectGuid>{62EC7D54-E65A-4FE4-AAF2-1B0B642E52B5}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Motion Drag Containers</RootNamespace>
@@ -126,10 +126,14 @@
     <EmbeddedResource Include="Properties\Motion Drag Containers.UWP.rd.xml" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform" Version="6.2.14"/>
-    <PackageReference Include="Microsoft.UI.Xaml" Version="2.8.6"/>
-    <PackageReference Include="PolySharp" Version="1.14.1" PrivateAssets="all"/>
-    <ProjectReference Include="..\UI-Data\UI Data.UWP\UI Data.UWP.csproj"/>
+    <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform" Version="6.2.14" />
+    <PackageReference Include="Microsoft.UI.Xaml" Version="2.8.6" />
+    <PackageReference Include="PolySharp" Version="1.14.1" PrivateAssets="all" />
+    <ProjectReference Include="..\MotionDrag\MotionDrag.UWP\MotionDrag.UWP.csproj">
+      <Project>{bafd130d-1ce6-487d-bcb6-9c4b15081a80}</Project>
+      <Name>MotionDrag.UWP</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\UI-Data\UI Data.UWP\UI Data.UWP.csproj" />
   </ItemGroup>
   <Import Project="..\Motion Drag Containers\Motion Drag Containers.projitems" Label="Shared" />
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">

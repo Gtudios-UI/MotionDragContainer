@@ -1,4 +1,4 @@
-﻿namespace Get.UI.Controls.Containers;
+﻿namespace Gtudios.UI.MotionDragContainers;
 partial class MotionDragItem<TContent>
 {
     void InitManipulation()

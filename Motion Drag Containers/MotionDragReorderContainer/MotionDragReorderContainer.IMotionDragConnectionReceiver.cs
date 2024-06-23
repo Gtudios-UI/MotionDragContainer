@@ -1,15 +1,14 @@
-using Get.UI.MotionDrag;
+using Gtudios.UI.MotionDrag;
+namespace Gtudios.UI.MotionDragContainers;
 
-namespace Get.UI.Controls.Containers;
-
-partial class MotionDragContainer : IMotionDragConnectionReceiver
+partial class MotionDragContainer<T> : IMotionDragConnectionReceiver<T>
 {
-    bool IMotionDragConnectionReceiver.IsVisibleAt(Point pt)
+    bool IMotionDragConnectionReceiver<T>.IsVisibleAt(Point pt)
     {
         SelfNote.HasDisallowedPInvoke();
         if (!(XamlRoot.IsHostVisible && Visibility is Visibility.Visible))
             return false;
-        var ptScreen = GlobalRectangle.WindowPosOffset.Add(pt);
+        var ptScreen = GlobalRectangle.WindowPosOffset.Point() + pt;
         return WinWrapper.Windowing.Window.FromLocation(
             (int)ptScreen.X,
             (int)ptScreen.Y
@@ -20,8 +19,8 @@ partial class MotionDragContainer : IMotionDragConnectionReceiver
     bool useCached = false; // warning: doesn't work, fix before turning this back to true
     GlobalContainerRect _globalRectangle;
     GlobalContainerRect GlobalRectangle => useCached ? _globalRectangle : GlobalContainerRect.GetFromContainer(this);
-    GlobalContainerRect IMotionDragConnectionReceiver.GlobalRectangle => GlobalRectangle;
-    void IMotionDragConnectionReceiver.DragEnter(object? sender, object? item, int senderIndex, DragPosition dragPositionIn, ref Point itemOffset)
+    GlobalContainerRect IMotionDragConnectionReceiver<T>.GlobalRectangle => GlobalRectangle;
+    void IMotionDragConnectionReceiver<T>.DragEnter(object? sender, T item, int senderIndex, DragPosition dragPositionIn, ref Point itemOffset)
     {
         if (!ReferenceEquals(sender, this))
             AnimationController.Reset();
@@ -35,7 +34,7 @@ partial class MotionDragContainer : IMotionDragConnectionReceiver
         var dragPosition = dragPositionIn.ToNewContainer(GlobalRectangle);
         SnapDrag(dragPosition, dragPositionIn, ref itemOffset);
         AnimationController.ShiftAmount =
-            ReorderOrientation is Orientation.Horizontal ?
+            ReorderOrientationProperty.Value is Orientation.Horizontal ?
             dragPosition.OriginalItemRect.Width :
             dragPosition.OriginalItemRect.Height;
         AnimationController.StartShiftIndex =
@@ -44,14 +43,14 @@ partial class MotionDragContainer : IMotionDragConnectionReceiver
                 dragPosition.MousePositionToContainer.Y
             );
     }
-    void IMotionDragConnectionReceiver.DragDelta(object? sender, object? item, int senderIndex, DragPosition dragPosition, ref Point itemOffset)
+    void IMotionDragConnectionReceiver<T>.DragDelta(object? sender, T item, int senderIndex, DragPosition dragPosition, ref Point itemOffset)
         => DragDelta(sender, item, dragPosition, ref itemOffset);
 
-    void IMotionDragConnectionReceiver.DragLeave(object? sender, object? item, int senderIndex)
+    void IMotionDragConnectionReceiver<T>.DragLeave(object? sender, T item, int senderIndex)
     {
-        AnimationController.StartShiftIndex = ItemsCount;
+        AnimationController.StartShiftIndex = ItemsSourceProperty.Count;
     }
-    async void IMotionDragConnectionReceiver.Drop(object? sender, object? item, int senderIndex, DragPosition dragPosition, DropManager dropManager)
+    async void IMotionDragConnectionReceiver<T>.Drop(object? sender, T item, int senderIndex, DragPosition dragPosition, DropManager dropManager)
     {
         //var pt = dragPosition.ItemPositionToScreen;
         //var hwnd = Popup.XamlRoot.ContentIslandEnvironment.AppWindowId;
@@ -66,8 +65,7 @@ partial class MotionDragContainer : IMotionDragConnectionReceiver
             //    await st.TemporaryAnimateTranslationAsync(pt.X, pt.Y);
             //}
             AnimationController.Reset();
-            newIdx = Math.Min(newIdx, ItemsCount);
-            if (newIdx > ItemDragIndex) newIdx--;
+            newIdx = Math.Min(newIdx, ItemsSourceProperty.Count);
             if (newIdx != ItemDragIndex)
             {
                 //int i = 0;
@@ -76,29 +74,7 @@ partial class MotionDragContainer : IMotionDragConnectionReceiver
                 //    st2.ResetTranslationImmedietly();
                 //}
                 OnItemMovingInContainer(ItemDragIndex, newIdx);
-                var itemSource = ItemsSource;
-                if (itemSource is null)
-                {
-                    var itemToMove = Items[ItemDragIndex];
-                    Items.RemoveAt(ItemDragIndex);
-                    Items.Insert(newIdx, itemToMove);
-                }
-                else if (itemSource is IList list)
-                {
-                    var itemToMove = list[ItemDragIndex];
-                    list.RemoveAt(ItemDragIndex);
-                    list.Insert(newIdx, itemToMove);
-                    if (list is not INotifyCollectionChanged)
-                    {
-                        // refresh ItemSource
-                        ItemsSource = null;
-                        ItemsSource = list;
-                    }
-                }
-                else
-                {
-                    throw new NotSupportedException("ItemSource must implement IList");
-                }
+                ItemsSourceProperty.Move(ItemDragIndex, newIdx);
                 OnItemMovedInContainer(ItemDragIndex, newIdx);
             }
 
@@ -121,27 +97,10 @@ partial class MotionDragContainer : IMotionDragConnectionReceiver
             //    st2.ResetTranslationImmedietly();
             //}
             OnItemDroppingFromAnotherContainer(sender, item, senderIndex, newIdx);
-            await dropManager.RemoveItemFromHostAsync();
-            if (newIdx > ItemsCount) newIdx = ItemsCount;
+            await ((MotionDragReorderContainerDropManager)dropManager).RemoveItemFromHostAsync();
+            if (newIdx > ItemsSourceProperty.Count) newIdx = ItemsSourceProperty.Count;
             var itemSource = ItemsSource;
-            if (itemSource is null)
-            {
-                Items.Insert(newIdx, item);
-            }
-            else if (itemSource is IList list)
-            {
-                list.Insert(newIdx, item);
-                if (list is not INotifyCollectionChanged)
-                {
-                    // refresh ItemSource
-                    ItemsSource = null;
-                    ItemsSource = list;
-                }
-            }
-            else
-            {
-                throw new NotSupportedException("ItemSource must implement IList");
-            }
+            ItemsSourceProperty.Insert(newIdx, item);
             OnItemDropFromAnotherContainer(sender, item, senderIndex, newIdx);
             def.Complete();
         }
@@ -151,7 +110,7 @@ partial class MotionDragContainer : IMotionDragConnectionReceiver
         mousePos = dragPosition.MousePositionToContainer;
         if (mousePos.X > 0 && mousePos.X < ActualWidth && mousePos.Y > 0 && mousePos.Y < ActualHeight)
         {
-            if (ReorderOrientation is Orientation.Vertical)
+            if (ReorderOrientationProperty.Value is Orientation.Vertical)
             {
                 itemOffset.X -= dragPosition.MousePositionToContainer.X - (dragPositionOriginal.MouseOffset.X - dragPositionOriginal.OriginalItemRect.X);
             }
@@ -161,11 +120,11 @@ partial class MotionDragContainer : IMotionDragConnectionReceiver
             }
         }
     }
-    protected virtual void OnItemDroppingFromAnotherContainer(object? sender, object? item, int senderIndex, int newIndex)
+    protected virtual void OnItemDroppingFromAnotherContainer(object? sender, T item, int senderIndex, int newIndex)
     {
 
     }
-    protected virtual void OnItemDropFromAnotherContainer(object? sender, object? item, int senderIndex, int newIndex)
+    protected virtual void OnItemDropFromAnotherContainer(object? sender, T item, int senderIndex, int newIndex)
     {
 
     }

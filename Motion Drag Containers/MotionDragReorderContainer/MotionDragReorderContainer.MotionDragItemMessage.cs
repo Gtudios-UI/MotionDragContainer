@@ -1,13 +1,11 @@
+using Get.Data.Collections;
+using Gtudios.UI.MotionDrag;
 using System.Threading.Tasks;
 
-namespace Get.UI.Controls.Containers;
+namespace Gtudios.UI.MotionDragContainers;
 
-partial class MotionDragContainer
+partial class MotionDragContainer<T>
 {
-    Grid Root => (Grid)GetTemplateChild(nameof(Root));
-    Popup Popup => (Popup)GetTemplateChild(nameof(Popup));
-    UserControl Display => (UserControl)GetTemplateChild(nameof(Display));
-    internal ItemsPresenter ItemPlace => (ItemsPresenter)GetTemplateChild(nameof(ItemPlace));
     Vector3 translation = default;
     Point initmousePos = default;
     Point mousePos = default;
@@ -15,7 +13,7 @@ partial class MotionDragContainer
     Point translationXamlRoot = default;
     Rect itemRect;
     int ItemDragIndex = -1;
-    object? DraggingObject;
+    T DraggingObject;
     bool isCanceled = false;
 
     internal void MotionDragItemManipulationStarted(object sender, ManipulationStartedRoutedEventArgs e)
@@ -34,14 +32,14 @@ partial class MotionDragContainer
         );
         eleVisual.IsVisible = false;
         translationRoot = ele.TransformToVisual(Root).TransformPoint(default);
-        initmousePos = e.Position.Add(translationRoot);
+        initmousePos = e.Position.Point() + translationRoot;
         translationXamlRoot = ele.TransformToVisual(Root.XamlRoot.Content).TransformPoint(e.Position);
         itemRect = new(translationRoot, new Size(ele.ActualSize.X, ele.ActualSize.Y));
         _globalRectangle = GlobalContainerRect.GetFromContainer(this);
-        var idx = SafeIndexFromMotionDragItem((MotionDragItem)ele);
+        var idx = SafeIndexFromMotionDragItem((MotionDragItem<T>)ele);
         AnimationController.Reset();
         AnimationController.StartRemoveIndex = ItemDragIndex = idx;
-        DraggingObject = ItemFromContainer(ContainerFromIndex(idx));
+        DraggingObject = ItemsSourceProperty[idx];
 
         Popup.Translation = new((float)translationRoot.X, (float)translationRoot.Y, 0);
         Popup.IsOpen = true;
@@ -100,7 +98,7 @@ partial class MotionDragContainer
     {
         public required Func<Task> RemoveItemFunc;
         bool isAlreadyCalled = false;
-        public override Task RemoveItemFromHostAsync()
+        public Task RemoveItemFromHostAsync()
         {
             if (isAlreadyCalled) return Task.CompletedTask;
             isAlreadyCalled = true;
@@ -129,26 +127,7 @@ partial class MotionDragContainer
 
         Task RemoveItemAsync()
         {
-            var itemSource = ItemsSource;
-            if (itemSource is null)
-            {
-                var itemToMove = Items[ItemDragIndex];
-                Items.RemoveAt(ItemDragIndex);
-            }
-            else if (itemSource is IList list)
-            {
-                list.RemoveAt(ItemDragIndex);
-                if (list is not INotifyCollectionChanged)
-                {
-                    // refresh ItemSource
-                    ItemsSource = null;
-                    ItemsSource = list;
-                }
-            }
-            else
-            {
-                throw new NotSupportedException("ItemSource must implement IList");
-            }
+            ItemsSourceProperty.RemoveAt(ItemDragIndex);
             AnimationController.Reset();
             return Task.CompletedTask;
         }

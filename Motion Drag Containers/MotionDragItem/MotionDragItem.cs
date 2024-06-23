@@ -1,7 +1,7 @@
 ﻿using Get.Data.Properties;
 using Get.UI.Data;
 
-namespace Get.UI.Controls.Containers;
+namespace Gtudios.UI.MotionDragContainers;
 public partial class MotionDragItem<TContent> : TypedTemplateContentControl<TContent, Border>
 {
     MotionDragContainer? Owner => this.FindAscendant<MotionDragContainer>();

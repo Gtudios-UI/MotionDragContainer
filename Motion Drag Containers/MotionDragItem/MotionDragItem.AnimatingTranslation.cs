@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace Get.UI.Controls.Containers;
+namespace Gtudios.UI.MotionDragContainers;
 partial class MotionDragItem<TContent>
 {
     internal void TemporaryAnimateTranslation(double x, double y)

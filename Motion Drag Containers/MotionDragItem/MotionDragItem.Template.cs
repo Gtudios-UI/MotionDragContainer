@@ -1,7 +1,5 @@
 using Get.UI.Data;
-
-namespace Get.UI.Controls.Containers;
-
+namespace Gtudios.UI.MotionDragContainers;
 partial class MotionDragItem<TContent>
 {
     public ExternalControlTemplate<MotionDragItemTempalteParts, MotionDragItem<TContent>, Border> ControlTemplate { get; set; } = DefaultTemplate;

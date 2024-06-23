@@ -9,11 +9,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+      <PackageReference Include="CommunityToolkit.WinUI.Extensions" Version="8.0.240109" />
+      <PackageReference Include="Get.Data" Version="1.0.7" />
+      <PackageReference Include="Get.EasyCSharp.Generator" Version="1.2.0" />
       <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.5.240311000" />
       <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22621.756" />
       <PackageReference Include="PolySharp" Version="1.14.1" PrivateAssets="all" />
       <ProjectReference Include="..\MotionDrag\MotionDrag.WASDK\MotionDrag.WASDK.csproj" />
       <ProjectReference Include="..\UI-Data\UI Data.WASDK\UI Data.WASDK.csproj" />
+      <ProjectReference Include="..\Windowing\Windowing.WASDK\Windowing.WASDK.csproj" />
   </ItemGroup>
 
   <Import Project="..\Motion Drag Containers\Motion Drag Containers.projitems" Label="Shared" />

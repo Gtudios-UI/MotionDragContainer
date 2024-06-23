@@ -5,3 +5,7 @@
 [submodule "MotionDrag"]
 	path = MotionDrag
 	url = https://github.com/Gtudios-UI/MotionDrag
+
+[submodule "Windowing"]
+	path = Windowing
+	url = https://github.com/Gtudios-UI/Windowing

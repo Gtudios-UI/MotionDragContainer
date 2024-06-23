@@ -1,5 +1,5 @@
 ﻿namespace Get.UI.Controls.Containers;
-partial class MotionDragItem
+partial class MotionDragItem<TContent>
 {
     void InitManipulation()
     {

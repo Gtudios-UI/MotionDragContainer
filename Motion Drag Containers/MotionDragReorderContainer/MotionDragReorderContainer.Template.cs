@@ -15,11 +15,23 @@ partial class MotionDragContainer<T>
 {
     public ExternalControlTemplate<MotionDragContainerTempalteParts<T>, MotionDragContainer<T>, Grid> ControlTemplate { get; set; } = DefaultTemplate;
     MotionDragContainerTempalteParts<T> TempalteParts;
-    protected override IGDCollection<UIElement> InitializeWithChildren(Grid TemplatedParent)
+    protected override IGDCollection<MotionDragItem<T>> InitializeWithChildren(Grid TemplatedParent)
     {
         TempalteParts = ControlTemplate(this, TemplatedParent);
         // ...
-        return Container.Children.AsGDCollection();
+        return new Wrapper(Container.Children.AsGDCollection());
+    }
+    readonly struct Wrapper(IGDCollection<UIElement> ele) : IGDCollection<MotionDragItem<T>>
+    {
+        public MotionDragItem<T> this[int index] { get => (MotionDragItem<T>)ele[index]; set => ele[index] = value; }
+
+        public int Count => ele.Count;
+
+        public void Insert(int index, MotionDragItem<T> item)
+            => ele.Insert(index, item);
+
+        public void RemoveAt(int index)
+            => ele.RemoveAt(index);
     }
     Grid Root => TempalteParts.Root;
     Popup Popup => TempalteParts.Popup;

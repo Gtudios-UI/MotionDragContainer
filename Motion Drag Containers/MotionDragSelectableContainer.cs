@@ -12,14 +12,14 @@ public partial class MotionDragSelectableContainer<T> : MotionDragContainer<T>, 
     }
     void OnSelectedIndexChanged(int oldValue, int newValue)
     {
-        if (oldValue is >= 0 && SafeContainerFromIndex(oldValue) is UIElement container)
+        if (oldValue is >= 0 && ChildContainers[oldValue] is UIElement container)
         {
             if (Canvas.GetZIndex(container) is 2)
                 Canvas.SetZIndex(container, 0);
             if (container.FindDescendantOrSelf<MotionDragSelectableItem<T>>() is { } item)
                 item.IsPrimarySelected = false;
         }
-        if (newValue is >= 0 && SafeContainerFromIndex(newValue) is UIElement container2)
+        if (newValue is >= 0 && ChildContainers[newValue] is UIElement container2)
         {
             if (Canvas.GetZIndex(container2) is 0)
                 Canvas.SetZIndex(container2, 2);
@@ -48,7 +48,7 @@ public partial class MotionDragSelectableContainer<T> : MotionDragContainer<T>, 
     }
     internal bool IsPrimarySelected(MotionDragSelectableItem<T> item)
     {
-        return SafeContainerFromIndex(SelectedIndex)?
+        return ChildContainers[SelectedIndex]?
             .FindDescendantOrSelf<MotionDragSelectableItem<T>>(
                 x => x == item
             ) is not null;
@@ -81,7 +81,7 @@ public partial class MotionDragSelectableContainer<T> : MotionDragContainer<T>, 
 
     protected override void OnItemMovingInContainer(int oldIndex, int newIndex)
     {
-        if (SafeContainerFromIndex(oldIndex) is { } a &&
+        if (ChildContainers[oldIndex] is { } a &&
             (a.FindDescendantOrSelf<MotionDragSelectableItem<T>>()?.IsPrimarySelected ?? false))
         {
             newSelectionIndex = newIndex;

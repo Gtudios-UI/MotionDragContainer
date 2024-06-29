@@ -8,7 +8,7 @@ namespace Gtudios.UI.MotionDragContainers;
 
 partial class MotionDragSelectableItem<TContent>
 {
-    readonly static ExternalControlTemplate<MotionDragItemTempalteParts, MotionDragItem<TContent>, Border> DefaultTemplate =
+    public new readonly static ExternalControlTemplate<MotionDragItemTempalteParts, MotionDragItem<TContent>, Border> DefaultTemplate =
         (thisuncated, border) =>
         {
             var @this = (MotionDragSelectableItem<TContent>)thisuncated;

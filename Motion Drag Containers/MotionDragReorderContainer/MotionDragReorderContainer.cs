@@ -6,7 +6,7 @@ using Gtudios.UI.MotionDrag;
 using Get.EasyCSharp;
 namespace Gtudios.UI.MotionDragContainers;
 
-public partial class MotionDragContainer<T> : TwoWaySelectableItemsTemplatedControl<T, Grid>
+public partial class MotionDragContainer<T> : TwoWaySelectableItemsTemplatedControl<Grid, T, MotionDragItem<T>>
 {
     public Property<Orientation> ReorderOrientationProperty { get; } = new(default);
     public Property<MotionDragConnectionContext<T>?> ConnectionContextProperty { get; } = new(new());
@@ -29,7 +29,6 @@ public partial class MotionDragContainer<T> : TwoWaySelectableItemsTemplatedCont
     //int curItemIndex;
     //int curHoverItemIndex;
     //double tranOffset;
-    internal UIElement? SafeContainerFromIndex(int idx) => idx < 0 || idx > Container.Children.Count ? null : Container.Children[idx];
     internal int SafeIndexFromContainer(DependencyObject? obj)
     {
         var eles = obj.FindAscendants().GetEnumerator();
@@ -82,7 +81,7 @@ partial class MotionDragReorderContainerController<T>(MotionDragContainer<T> sel
             afterLast = true;
             index = self.ItemsSourceProperty.Count - 1;
         }
-        if (self.SafeContainerFromIndex(index) is not { } curItem || curItem.FindDescendantOrSelf<MotionDragItem<T>>() is not { } st)
+        if (self.ChildContainers[index] is not { } curItem || curItem.FindDescendantOrSelf<MotionDragItem<T>>() is not { } st)
             throw new InvalidOperationException();
         if (positions is null) UpdateAnimated();
         var position = curItem.TransformToVisual(self.Container).TransformPoint(default);
@@ -121,7 +120,7 @@ partial class MotionDragReorderContainerController<T>(MotionDragContainer<T> sel
             //{
             //    continue;
             //}
-            if (self.SafeContainerFromIndex(i) is not { } curItem || curItem.FindDescendantOrSelf<MotionDragItem<T>>() is not { } st)
+            if (self.ChildContainers[i] is not { } curItem || curItem.FindDescendantOrSelf<MotionDragItem<T>>() is not { } st)
                 continue;
 
             var position = curItem.TransformToVisual(self.Container).TransformPoint(default);
@@ -129,7 +128,7 @@ partial class MotionDragReorderContainerController<T>(MotionDragContainer<T> sel
 
             Point translationAmount = default;
             //if (i > 0 && i > startRemoveIndex)
-            //    if (self.SafeContainerFromIndex(i - 1) is { } prevItem)
+            //    if (self.Containers[i - 1] is { } prevItem)
             //    {
             //        var d = curItem.TransformToVisual(prevItem).TransformPoint(default);
             //        translationAmount = translationAmount.Subtract(d);
@@ -137,7 +136,7 @@ partial class MotionDragReorderContainerController<T>(MotionDragContainer<T> sel
             positions[i] = positionsremoved[i] = TranAt(position) + TranAt(translationAmount);
             // positions[i] = TranAt(position) + TranAt(translationAmount);
         }
-        if (self.SafeContainerFromIndex(itemCount - 1) is { } lastItem)
+        if (self.ChildContainers[itemCount - 1] is { } lastItem)
         {
             positions[itemCount] = positions[itemCount - 1] +
                     (orientation is Orientation.Horizontal ? lastItem.ActualSize.X : lastItem.ActualSize.Y);
@@ -159,7 +158,7 @@ partial class MotionDragReorderContainerController<T>(MotionDragContainer<T> sel
             if (i == startRemoveIndex)
                 // do not play animation for the item we are dragging
                 continue;
-            if (self.SafeContainerFromIndex(i) is not { } curItem || curItem.FindDescendantOrSelf<MotionDragItem<T>>() is not { } st)
+            if (self.ChildContainers[i] is not { } curItem || curItem.FindDescendantOrSelf<MotionDragItem<T>>() is not { } st)
                 continue;
             var position = curItem.TransformToVisual(self.Container).TransformPoint(default);
             var translationAmount = PointAt(positions[i]).Point() - position;
@@ -172,7 +171,7 @@ partial class MotionDragReorderContainerController<T>(MotionDragContainer<T> sel
         shiftAmount = 0;
         positions = positionsremoved = null;
         int i = 0;
-        while (self.SafeContainerFromIndex(i++)?.FindDescendantOrSelf<MotionDragItem<T>>() is { } st2)
+        while (self.ChildContainers[i++]?.FindDescendantOrSelf<MotionDragItem<T>>() is { } st2)
         {
             st2.ResetTranslationImmedietly();
         }

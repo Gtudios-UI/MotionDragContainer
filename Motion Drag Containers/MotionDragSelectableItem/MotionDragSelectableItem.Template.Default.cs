@@ -13,9 +13,11 @@ partial class MotionDragSelectableItem<TContent>
         {
             var @this = (MotionDragSelectableItem<TContent>)thisuncated;
             var a = MotionDragItem<TContent>.DefaultTemplate(@this, border);
+            var tmp = border.Child;
+            border.Child = null;
             border.Child = new Border
             {
-                Child = border.Child
+                Child = tmp
             }.AssignTo(out var BackgroundPlace);
             Border.BackgroundProperty.AsProperty<Border, SolidColorBrush>(BackgroundPlace)
             .Bind(@this.IsSelectedProperty.Select<bool, SolidColorBrush>(x => x ? new(Colors.Red) : new(Colors.Transparent)),

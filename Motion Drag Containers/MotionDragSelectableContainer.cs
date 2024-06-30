@@ -1,5 +1,6 @@
 #nullable enable
 using CommunityToolkit.WinUI;
+using Get.Data.Collections;
 using Get.Data.Collections.Update;
 
 namespace Gtudios.UI.MotionDragContainers;
@@ -30,7 +31,7 @@ public partial class MotionDragSelectableContainer<T> : MotionDragContainer<T>, 
     internal bool RequestPrimarySelect(MotionDragSelectableItem<T> item)
     {
         if (!item.IsSelectableItemKind) throw new NotSupportedException();
-        var idx = SafeIndexFromMotionDragItem(item);
+        var idx = ChildContainers.IndexOf(item);
         
         if (idx is not -1)
             SelectedIndex = idx;

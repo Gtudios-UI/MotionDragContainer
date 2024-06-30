@@ -36,7 +36,7 @@ partial class MotionDragContainer<T>
         translationXamlRoot = ele.TransformToVisual(Root.XamlRoot.Content).TransformPoint(e.Position);
         itemRect = new(translationRoot, new Size(ele.ActualSize.X, ele.ActualSize.Y));
         _globalRectangle = GlobalContainerRect.GetFromContainer(this);
-        var idx = SafeIndexFromMotionDragItem((MotionDragItem<T>)ele);
+        var idx = ChildContainers.IndexOf((MotionDragItem<T>)ele);
         AnimationController.Reset();
         AnimationController.StartRemoveIndex = ItemDragIndex = idx;
         DraggingObject = ItemsSourceProperty[idx];

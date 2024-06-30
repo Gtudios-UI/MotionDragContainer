@@ -4,6 +4,7 @@ using Get.Data.Properties;
 using Get.UI.Data;
 using Gtudios.UI.MotionDrag;
 using Get.EasyCSharp;
+using Get.Data.Collections;
 namespace Gtudios.UI.MotionDragContainers;
 
 public partial class MotionDragContainer<T> : TwoWaySelectableItemsTemplatedControl<Grid, T, MotionDragItem<T>>
@@ -29,21 +30,6 @@ public partial class MotionDragContainer<T> : TwoWaySelectableItemsTemplatedCont
     //int curItemIndex;
     //int curHoverItemIndex;
     //double tranOffset;
-    internal int SafeIndexFromContainer(DependencyObject? obj)
-    {
-        var eles = obj.FindAscendants().GetEnumerator();
-        DependencyObject cur, next;
-        do
-        {
-            if (!eles.MoveNext()) return -1;
-            cur = eles.Current;
-            if (!eles.MoveNext()) return -1;
-            next = eles.Current;
-        } while (next != Container);
-        if (cur is not UIElement ele) return -1;
-        return Container.Children.IndexOf(ele);
-    }
-    internal int SafeIndexFromMotionDragItem(MotionDragItem<T>? ele) => SafeIndexFromContainer(ele);
     //bool DidSetZIndex = false;
     MotionDragItem<T>? CurrentManipulationItem;
     void OnConnectionContextChanged(MotionDragConnectionContext<T>? oldValue, MotionDragConnectionContext<T>? newValue)
@@ -57,7 +43,7 @@ public partial class MotionDragContainer<T> : TwoWaySelectableItemsTemplatedCont
     readonly MotionDragReorderContainerController<T> AnimationController;
     internal T? ObjectFromSRI(MotionDragItem<T> item)
     {
-        var itemIdx = SafeIndexFromContainer(item);
+        var itemIdx = ChildContainers.IndexOf(item);
         if (itemIdx >= 0)
             return ItemsSourceProperty[itemIdx];
         return default;

@@ -32,7 +32,10 @@ partial class MotionDragItem<TContent>
     internal void ResetTranslationImmedietly()
     {
         AnimatingTranslationStoryboard?.Stop();
-        RootTransform.TranslateX = 0;
-        RootTransform.TranslateY = 0;
+        if (RootTransform is not null)
+        {
+            RootTransform.TranslateX = 0;
+            RootTransform.TranslateY = 0;
+        }
     }
 }

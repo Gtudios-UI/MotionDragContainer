@@ -14,6 +14,7 @@ partial class MotionDragItem<TContent>
     protected override void Initialize(Border rootElement)
     {
         TempalteParts = ControlTemplate(this, rootElement);
+        if (TempalteParts.RootTransform == null) Debugger.Break();
         RootElement.ManipulationMode = ManipulationModes.TranslateX | ManipulationModes.TranslateY;
         InitManipulation();
     }

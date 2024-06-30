@@ -1,3 +1,4 @@
+using Get.Data.Bindings;
 using Get.Data.Helpers;
 using Get.UI.Controls.Panels;
 using Get.UI.Data;
@@ -10,11 +11,12 @@ partial class MotionDragContainer<T>
         {
             Root.HorizontalAlignment = HorizontalAlignment.Left;
             Root.VerticalAlignment = VerticalAlignment.Top;
-            Root.Children.Add(new OrientedStackForContainer<T>
+            Root.Children.Add(new OrientedStack
             {
                 HorizontalAlignment = HorizontalAlignment.Left,
                 VerticalAlignment = VerticalAlignment.Top
             }.AssignTo(out var Container));
+            Container.OrientationProperty.Bind(@this.ReorderOrientationProperty, ReadOnlyBindingModes.OneWay);
             Root.Children.Add(new Grid
             {
                 HorizontalAlignment = HorizontalAlignment.Left,

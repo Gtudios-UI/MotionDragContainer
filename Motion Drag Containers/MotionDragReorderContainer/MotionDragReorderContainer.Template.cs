@@ -9,7 +9,7 @@ public record struct MotionDragContainerTempalteParts<T>(
     Grid Root,
     Popup Popup,
     UserControl Display,
-    OrientedStackForContainer<T> Container
+    OrientedStack Container
 );
 partial class MotionDragContainer<T>
 {
@@ -36,5 +36,5 @@ partial class MotionDragContainer<T>
     Grid Root => TempalteParts.Root;
     Popup Popup => TempalteParts.Popup;
     UserControl Display => TempalteParts.Display;
-    internal OrientedStackForContainer<T> Container => TempalteParts.Container;
+    internal OrientedStack Container => TempalteParts.Container;
 }

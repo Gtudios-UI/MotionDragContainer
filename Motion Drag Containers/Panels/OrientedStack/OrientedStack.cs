@@ -1,10 +1,11 @@
 using Get.Data.Properties;
+using Get.UI.Data;
 using Microsoft.UI.Xaml.Controls;
 using System.Diagnostics;
 
 namespace Get.UI.Controls.Panels;
-
-public partial class OrientedStack : Panel
+[Bindable]
+public partial class OrientedStack : NamedPanel
 {
     public static AttachedPropertyDefinition<DependencyObject, GridUnitType> LengthTypeProperty { get; } = new(default);
     public static AttachedPropertyDefinition<DependencyObject, double> LengthValueProperty { get; } = new(default);
@@ -16,7 +17,7 @@ public partial class OrientedStack : Panel
         LengthProperty.ValueChanged += OnLengthChanged;
     }
     public Property<Orientation> OrientationProperty { get; } = new(default);
-    public Orientation Orientation { get; set; }
+    public Orientation Orientation { get => OrientationProperty.Value; set => OrientationProperty.Value = value; }
     public OrientedStack()
     {
         OrientationProperty.ValueChanged += OnOrientationChanged;
@@ -45,8 +46,7 @@ public partial class OrientedStack : Panel
     }
     void OnOrientationChanged(Orientation oldValue, Orientation newValue)
     {
-        InvalidateMeasure();
-        InvalidateArrange();
+        UpdateLayout();
     }
     protected override Size MeasureOverride(Size availableSize)
     {

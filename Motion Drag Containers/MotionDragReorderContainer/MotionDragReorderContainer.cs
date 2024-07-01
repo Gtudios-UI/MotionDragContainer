@@ -59,6 +59,8 @@ partial class MotionDragReorderContainerController<T>(MotionDragContainer<T> sel
     double shiftAmount;
     double[]? positions;
     double[]? positionsremoved;
+    double[]? positionsreal;
+    double[]? positionsthreshold;
     public Point PositionOfItemAtIndex(int index)
     {
         bool afterLast = false;
@@ -99,6 +101,10 @@ partial class MotionDragReorderContainerController<T>(MotionDragContainer<T> sel
             positions = new double[itemCount + 1];
         if (positionsremoved is null || positionsremoved.Length != itemCount + 1)
             positionsremoved = new double[itemCount + 1];
+        if (positionsthreshold is null || positionsthreshold.Length != itemCount - 1)
+            positionsthreshold = new double[itemCount - 1];
+        if (positionsreal is null || positionsreal.Length != itemCount)
+            positionsreal = new double[itemCount];
         for (int i = 0; i < itemCount; i++)
         {
             // do not translate the one we are showing on popup
@@ -119,7 +125,7 @@ partial class MotionDragReorderContainerController<T>(MotionDragContainer<T> sel
             //        var d = curItem.TransformToVisual(prevItem).TransformPoint(default);
             //        translationAmount = translationAmount.Subtract(d);
             //    }
-            positions[i] = positionsremoved[i] = TranAt(position) + TranAt(translationAmount);
+            positions[i] = positionsremoved[i] = positionsreal[i] = TranAt(position) + TranAt(translationAmount);
             // positions[i] = TranAt(position) + TranAt(translationAmount);
         }
         if (self.ChildContainers[itemCount - 1] is { } lastItem)
@@ -129,13 +135,36 @@ partial class MotionDragReorderContainerController<T>(MotionDragContainer<T> sel
             positionsremoved[itemCount] = positionsremoved[itemCount - 1] +
                 (orientation is Orientation.Horizontal ? lastItem.ActualSize.X : lastItem.ActualSize.Y);
         }
+        {
+            // positions = real position here
+            // update the threshold based on the real position
+            if (startRemoveIndex >= itemCount)
+            {
+                for (int i = positionsthreshold.Length - 1; i >= 0; i--)
+                {
+                    positionsthreshold[i] = (positions[i] + positions[i + 1]) / 2;
+                }
+            } else
+            {
+                for (int i = startRemoveIndex - 1; i >= 0; i--)
+                {
+                    positionsthreshold[i] = (positions[i] + positions[i + 1]) / 2;
+                }
+                for (int i = startRemoveIndex; i < positionsthreshold.Length; i++)
+                {
+                    positionsthreshold[i] = (positions[i + 1] + positions[i + 2]) / 2;
+                }
+            }
+        }
         // iterate backwards so that we can read the previous value
         for (int i = itemCount; i > startRemoveIndex; i--)
         {
             positions[i] -= positions[i] - positions[i - 1];
             positionsremoved[i] -= positionsremoved[i] - positionsremoved[i - 1];
         }
-        for (int i = startShiftIndex; i < positions.Length; i++)
+        for (int i = startRemoveIndex >= itemCount ? (startShiftIndex) : (
+            startRemoveIndex > startShiftIndex ? startShiftIndex : startShiftIndex + 1
+        ); i < positions.Length; i++)
         {
             positions[i] += shiftAmount;
         }
@@ -155,7 +184,7 @@ partial class MotionDragReorderContainerController<T>(MotionDragContainer<T> sel
     {
         startRemoveIndex = startShiftIndex = self.ItemsSourceProperty.Count;
         shiftAmount = 0;
-        positions = positionsremoved = null;
+        positions = positionsremoved = positionsthreshold = null;
         int i = 0;
         while (self.ChildContainers[i++]?.FindDescendantOrSelf<MotionDragItem<T>>() is { } st2)
         {
@@ -164,44 +193,14 @@ partial class MotionDragReorderContainerController<T>(MotionDragContainer<T> sel
     }
     public int IndexOfItemAt(double posX, double posY)
     {
-        //if (InputKeyboardSource.GetKeyStateForCurrentThread(VirtualKey.Shift) is Windows.UI.Core.CoreVirtualKeyStates.Down)
-        //{
-        //    Debugger.Break();
-        //}
-        if (positionsremoved is null) UpdateAnimated();
+        if (positionsthreshold is null) UpdateAnimated();
         SelfNote.DebugBreakOnShift();
         var pos = self.ReorderOrientationProperty.Value is Orientation.Vertical ? posY : posX;
-        var idx = Array.BinarySearch(positionsremoved, pos);
+        var idx = Array.BinarySearch(positionsthreshold, pos);
         if (idx < 0)
         {
             idx = ~idx;
         }
-        int clampedIdx = idx >= positionsremoved.Length ? positionsremoved.Length - 1 : idx;
-        if (idx > 0 && pos < positionsremoved[clampedIdx])
-        {
-            clampedIdx--;
-            idx = clampedIdx;
-        }
-        if (clampedIdx > 0 && positionsremoved[clampedIdx] == positionsremoved[clampedIdx - 1])
-        {
-            clampedIdx--;
-            idx = clampedIdx;
-        if (idx >= 1 && idx + 1 < positionsremoved.Length)
-        {
-            if (pos >= (positionsremoved[idx] + positionsremoved[idx + 1]) / 2)
-            {
-                idx++;
-            }
-            }
-        }
-        if (idx == startRemoveIndex + 2)
-        {
-            if (pos < (positionsremoved[idx] + positionsremoved[idx + 1]) / 2)
-                idx--;
-            //if (pos <= (positionsremoved[idx + 1] + positionsremoved[idx + 2]) / 2)
-            //    idx--;
-        }
-        if (idx >= positionsremoved.Length) idx = positionsremoved.Length;
         return idx;
     }
 }

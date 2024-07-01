@@ -4,7 +4,7 @@ using Get.UI.Data;
 namespace Gtudios.UI.MotionDragContainers;
 partial class MotionDragItem<TContent>
 {
-    internal readonly static ExternalControlTemplate<MotionDragItemTempalteParts, MotionDragItem<TContent>, Border> DefaultTemplate =
+    public readonly static ExternalControlTemplate<MotionDragItemTempalteParts, MotionDragItem<TContent>, Border> DefaultTemplate =
         (@this, border) =>
         {
             var RootElement = border;

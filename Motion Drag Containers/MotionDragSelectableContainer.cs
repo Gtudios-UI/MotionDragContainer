@@ -11,6 +11,7 @@ public partial class MotionDragSelectableContainer<T> : MotionDragContainer<T>, 
     {
         SelectedIndexProperty.ValueChanged += OnSelectedIndexChanged;
     }
+
     void OnSelectedIndexChanged(int oldValue, int newValue)
     {
         if (oldValue is >= 0 && ChildContainers[oldValue] is UIElement container)
@@ -32,7 +33,7 @@ public partial class MotionDragSelectableContainer<T> : MotionDragContainer<T>, 
     {
         if (!item.IsSelectableItemKind) throw new NotSupportedException();
         var idx = ChildContainers.IndexOf(item);
-        
+
         if (idx is not -1)
             SelectedIndex = idx;
         return idx is not -1;
@@ -54,20 +55,14 @@ public partial class MotionDragSelectableContainer<T> : MotionDragContainer<T>, 
                 x => x == item
             ) is not null;
     }
-    int cachedSelectedIndex;
     protected override void OnItemDroppingFromAnotherContainer(object? sender, T item, int senderIndex, int newIndex)
     {
-        cachedSelectedIndex = SelectedIndex;
-        SelectedIndex = -1;
+        //cachedSelectedIndex = SelectedIndex;
+        //SelectedIndex = -1;
         base.OnItemDroppingFromAnotherContainer(sender, item, senderIndex, newIndex);
     }
     protected override void OnItemDropFromAnotherContainer(object? sender, T item, int senderIndex, int newIndex)
     {
-        // adjust the current selection to the correct item
-        if (newIndex <= cachedSelectedIndex)
-            SelectedIndex = cachedSelectedIndex + 1;
-        else
-            SelectedIndex = cachedSelectedIndex;
         // let's see if we need to select the new item or not
         if (sender is ISelectableContainer<T> other && other.SelectedIndex == senderIndex)
         {
@@ -76,28 +71,22 @@ public partial class MotionDragSelectableContainer<T> : MotionDragContainer<T>, 
         }
         base.OnItemDropFromAnotherContainer(sender, item, senderIndex, newIndex);
     }
-    int? newSelectionIndex = null;
-
-    T? ISelectableContainer<T?>.SelectedValue { get => SelectedValue; set => SelfNote.ThrowNotImplemented(); }
-
+    bool shouldSelect;
     protected override void OnItemMovingInContainer(int oldIndex, int newIndex)
     {
-        if (ChildContainers[oldIndex] is { } a &&
-            (a.FindDescendantOrSelf<MotionDragSelectableItem<T>>()?.IsPrimarySelected ?? false))
-        {
-            newSelectionIndex = newIndex;
-        } else
-        {
-            newSelectionIndex = null;
-        }
+        shouldSelect = SelectedIndex == oldIndex;
+        if (shouldSelect)
+            PausePreferAlwaysSelectItemProperty = true;
         base.OnItemMovingInContainer(oldIndex, newIndex);
     }
     protected override void OnItemMovedInContainer(int oldIndex, int newIndex)
     {
-        if (newSelectionIndex.HasValue)
-            SelectedIndex = newIndex;
-        base.OnItemMovedInContainer(oldIndex, newIndex);
+        if (shouldSelect) SelectedIndex = newIndex;
+        if (shouldSelect)
+            PausePreferAlwaysSelectItemProperty = false;
     }
+
+    T? ISelectableContainer<T?>.SelectedValue { get => SelectedValue; set => SelfNote.ThrowNotImplemented(); }
 }
 interface ISelectableContainer<T>
 {

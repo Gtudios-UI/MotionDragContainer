@@ -65,7 +65,7 @@ partial class MotionDragContainer<T> : IMotionDragConnectionReceiver<T>
             //    await st.TemporaryAnimateTranslationAsync(pt.X, pt.Y);
             //}
             AnimationController.Reset();
-            newIdx = Math.Min(newIdx, ItemsSourceProperty.Count);
+            newIdx = Math.Min(newIdx, ItemsSourceProperty.Count - 1);
             if (newIdx != ItemDragIndex)
             {
                 //int i = 0;
@@ -74,7 +74,8 @@ partial class MotionDragContainer<T> : IMotionDragConnectionReceiver<T>
                 //    st2.ResetTranslationImmedietly();
                 //}
                 OnItemMovingInContainer(ItemDragIndex, newIdx);
-                ItemsSourceProperty.Move(ItemDragIndex, newIdx);
+                ItemsSourceProperty.RemoveAt(ItemDragIndex);
+                ItemsSourceProperty.Insert(newIdx, item);
                 OnItemMovedInContainer(ItemDragIndex, newIdx);
             }
 

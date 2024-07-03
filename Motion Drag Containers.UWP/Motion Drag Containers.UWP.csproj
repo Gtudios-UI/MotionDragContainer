@@ -130,7 +130,7 @@
       <Version>8.0.240109</Version>
     </PackageReference>
     <PackageReference Include="Get.Data">
-      <Version>1.0.10</Version>
+      <Version>1.0.11</Version>
     </PackageReference>
     <PackageReference Include="Get.EasyCSharp.Generator">
       <Version>1.2.0</Version>

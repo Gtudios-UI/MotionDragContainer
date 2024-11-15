@@ -1,24 +1,30 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
-    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
-    <RootNamespace>Motion Drag Containers</RootNamespace>
-    <RuntimeIdentifiers Condition="$([MSBuild]::GetTargetFrameworkVersion('$(TargetFramework)')) &gt;= 8">win-x86;win-x64;win-arm64</RuntimeIdentifiers>
-    <RuntimeIdentifiers Condition="$([MSBuild]::GetTargetFrameworkVersion('$(TargetFramework)')) &lt; 8">win10-x86;win10-x64;win10-arm64</RuntimeIdentifiers>
-    <UseWinUI>true</UseWinUI>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+		<TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+		<RootNamespace>Motion Drag Containers</RootNamespace>
+		<RuntimeIdentifiers Condition="$([MSBuild]::GetTargetFrameworkVersion('$(TargetFramework)')) &gt;= 8">win-x86;win-x64;win-arm64</RuntimeIdentifiers>
+		<RuntimeIdentifiers Condition="$([MSBuild]::GetTargetFrameworkVersion('$(TargetFramework)')) &lt; 8">win10-x86;win10-x64;win10-arm64</RuntimeIdentifiers>
+		<UseWinUI>true</UseWinUI>
+		<LangVersion>latest</LangVersion>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
 
-  <ItemGroup>
-      <PackageReference Include="CommunityToolkit.WinUI.Extensions" Version="8.0.240109" />
-      <PackageReference Include="Get.Data" Version="1.0.11" />
-      <PackageReference Include="Get.EasyCSharp.Generator" Version="1.2.0" />
-      <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.5.240311000" />
-      <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22621.756" />
-      <PackageReference Include="PolySharp" Version="1.14.1" PrivateAssets="all" />
-      <ProjectReference Include="..\MotionDrag\MotionDrag.WASDK\MotionDrag.WASDK.csproj" />
-      <ProjectReference Include="..\UI-Data\UI Data.WASDK\UI Data.WASDK.csproj" />
-      <ProjectReference Include="..\Windowing\Windowing.WASDK\Windowing.WASDK.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="CommunityToolkit.WinUI.Extensions" Version="8.0.240109" />
+		<PackageReference Include="Get.EasyCSharp.Generator" Version="1.2.0" />
+		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.5.240311000" />
+		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22621.756" />
+		<PackageReference Include="PolySharp" Version="1.14.1" PrivateAssets="all" />
+		<ProjectReference Include="..\MotionDrag\MotionDrag.WASDK\MotionDrag.WASDK.csproj" />
+		<ProjectReference Include="..\UI-Data\Get.Data\Get.Data\Get.Data.csproj" />
+		<ProjectReference Include="..\UI-Data\Get.Data\Get.Data.SourceGenerators\Get.Data.SourceGenerators.csproj">
+			<OutputItemType>Analyzer</OutputItemType>
+			<ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+		</ProjectReference>
+		<ProjectReference Include="..\UI-Data\UI Data.WASDK\UI Data.WASDK.csproj" />
+		<ProjectReference Include="..\Windowing\Windowing.WASDK\Windowing.WASDK.csproj" />
+	</ItemGroup>
 
-  <Import Project="..\Motion Drag Containers\Motion Drag Containers.projitems" Label="Shared" />
+	<Import Project="..\Motion Drag Containers\Motion Drag Containers.projitems" Label="Shared" />
 </Project>

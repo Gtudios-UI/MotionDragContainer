@@ -7,7 +7,12 @@ global using System.Numerics;
 global using System.Collections;
 global using System.Collections.Specialized;
 global using System.Diagnostics;
-using System.Runtime.InteropServices;
+global using System.Runtime.InteropServices;
+global using Get.Data.Properties;
+global using Get.EasyCSharp;
+global using Get.Data.Collections;
+global using Get.Data.UIModels;
+global using static Get.Data.Properties.AutoTyper;
 
 namespace Gtudios.UI.MotionDragContainers;
 internal static class SelfNote

@@ -17,11 +17,11 @@
     <Compile Include="$(MSBuildThisFileDirectory)MotionDragItem\MotionDragItem.PointerState.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MotionDragItem\MotionDragItem.Template.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MotionDragItem\MotionDragItem.Template.Default.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)MotionDragReorderContainer\MotionDragReorderContainer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)MotionDragReorderContainer\MotionDragReorderContainer.IMotionDragConnectionReceiver.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)MotionDragReorderContainer\MotionDragReorderContainer.MotionDragItemMessage.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)MotionDragReorderContainer\MotionDragReorderContainer.Template.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)MotionDragReorderContainer\MotionDragReorderContainer.Template.Default.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MotionDragContainer\MotionDragContainer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MotionDragContainer\MotionDragContainer.IMotionDragConnectionReceiver.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MotionDragContainer\MotionDragContainer.MotionDragItemMessage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MotionDragContainer\MotionDragContainer.Template.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MotionDragContainer\MotionDragContainer.Template.Default.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MotionDragSelectableContainer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MotionDragSelectableItem\MotionDragSelectableItem.Template.Default.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MotionDragSelectableItem\MotionDragSelectableItem.cs" />

@@ -1,15 +1,38 @@
 #nullable enable
 using CommunityToolkit.WinUI;
+using Get.Data.Bindings.Linq;
 using Get.Data.Collections;
 using Get.Data.Collections.Update;
 
 namespace Gtudios.UI.MotionDragContainers;
 //[DependencyProperty(typeof(bool), "AllowMultipleSelection", GenerateLocalOnPropertyChangedMethod = true, UseNullableReferenceType = true)]
+[AutoProperty]
 public partial class MotionDragSelectableContainer<T> : MotionDragContainer<T>, ISelectableContainer<T?>
 {
+    public IProperty<SelectionManagerMutable<T>> SelectionManagerProperty { get; } = Auto<SelectionManagerMutable<T>>(new());
+    int SelectedIndex
+    {
+        get => SelectionManager.SelectedIndex;
+        set => SelectionManager.SelectedIndex = value;
+    }
+    int ISelectableContainer<T?>.SelectedIndex
+    {
+        get => SelectedIndex;
+        set => SelectedIndex = value;
+    }
     public MotionDragSelectableContainer()
     {
-        SelectedIndexProperty.ValueChanged += OnSelectedIndexChanged;
+        TargetCollectionProperty.BindOneWay(SelectionManagerProperty.Select(x => x.Collection));
+        TargetCollectionProperty.ValueChanged += (_, newVal) =>
+        {
+            if (newVal != SelectionManager.Collection)
+            {
+                throw new InvalidOperationException(
+                    "Collection should not be modified manually. " +
+                    "It is automatically set to SelectionManager.Collection.");
+            }
+        };
+        SelectionManagerProperty.SelectPath(x => x.SelectedIndexProperty).ValueChanged += OnSelectedIndexChanged;
     }
 
     void OnSelectedIndexChanged(int oldValue, int newValue)
@@ -85,8 +108,9 @@ public partial class MotionDragSelectableContainer<T> : MotionDragContainer<T>, 
         if (shouldSelect)
             PausePreferAlwaysSelectItemProperty = false;
     }
+    bool PausePreferAlwaysSelectItemProperty;
 
-    T? ISelectableContainer<T?>.SelectedValue { get => SelectedValue; set => SelfNote.ThrowNotImplemented(); }
+    T? ISelectableContainer<T?>.SelectedValue { get => SelectionManager.SelectedValue; set => SelfNote.ThrowNotImplemented(); }
 }
 interface ISelectableContainer<T>
 {

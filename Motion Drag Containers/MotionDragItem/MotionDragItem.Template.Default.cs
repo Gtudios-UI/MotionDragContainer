@@ -1,4 +1,5 @@
 using Get.Data.Bindings.Linq;
+using Get.Data.Bundles;
 using Get.Data.Helpers;
 using Get.UI.Data;
 namespace Gtudios.UI.MotionDragContainers;
@@ -72,10 +73,7 @@ partial class MotionDragItem<TContent>
             }
             .WithCustomCode(x =>
             {
-                x.ContentBundleProperty.Bind(
-                    @this.ContentBundleProperty.Select<ContentBundle<TContent, UIElement>, ContentBundle>(x => x),
-                    Get.Data.Bindings.ReadOnlyBindingModes.OneWay
-                );
+                x.ContentBundleProperty.BindOneWay(@this.ContentBundleProperty.Select(x => x as IContentBundle<UIElement>));
             });
 
             return new(

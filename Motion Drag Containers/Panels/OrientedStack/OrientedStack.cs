@@ -4,12 +4,12 @@ using Microsoft.UI.Xaml.Controls;
 using System.Diagnostics;
 
 namespace Get.UI.Controls.Panels;
-[Bindable]
+
 public partial class OrientedStack : NamedPanel
 {
-    public static AttachedPropertyDefinition<DependencyObject, GridUnitType> LengthTypeProperty { get; } = new(default);
-    public static AttachedPropertyDefinition<DependencyObject, double> LengthValueProperty { get; } = new(default);
-    public static AttachedPropertyDefinition<DependencyObject, GridLength> LengthProperty { get; } = new(default);
+    public static AttachedProperty<DependencyObject, GridUnitType> LengthTypeProperty { get; } = new(default);
+    public static AttachedProperty<DependencyObject, double> LengthValueProperty { get; } = new(default);
+    public static AttachedProperty<DependencyObject, GridLength> LengthProperty { get; } = new(default);
     static OrientedStack()
     {
         LengthTypeProperty.ValueChanged += OnLengthTypeChanged;

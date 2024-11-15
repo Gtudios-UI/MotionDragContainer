@@ -34,7 +34,7 @@ partial class MotionDragContainer<T> : IMotionDragConnectionReceiver<T>
         var dragPosition = dragPositionIn.ToNewContainer(GlobalRectangle);
         SnapDrag(dragPosition, dragPositionIn, ref itemOffset);
         AnimationController.ShiftAmount =
-            ReorderOrientationProperty.Value is Orientation.Horizontal ?
+            ReorderOrientation is Orientation.Horizontal ?
             dragPosition.OriginalItemRect.Width :
             dragPosition.OriginalItemRect.Height;
         AnimationController.StartShiftIndex =
@@ -48,7 +48,7 @@ partial class MotionDragContainer<T> : IMotionDragConnectionReceiver<T>
 
     void IMotionDragConnectionReceiver<T>.DragLeave(object? sender, T item, int senderIndex)
     {
-        AnimationController.StartShiftIndex = ItemsSourceProperty.Count;
+        AnimationController.StartShiftIndex = TargetCollection.Count;
     }
     async void IMotionDragConnectionReceiver<T>.Drop(object? sender, T item, int senderIndex, DragPosition dragPosition, DropManager dropManager)
     {
@@ -65,7 +65,7 @@ partial class MotionDragContainer<T> : IMotionDragConnectionReceiver<T>
             //    await st.TemporaryAnimateTranslationAsync(pt.X, pt.Y);
             //}
             AnimationController.Reset();
-            newIdx = Math.Min(newIdx, ItemsSourceProperty.Count - 1);
+            newIdx = Math.Min(newIdx, TargetCollection.Count - 1);
             if (newIdx != ItemDragIndex)
             {
                 //int i = 0;
@@ -74,8 +74,8 @@ partial class MotionDragContainer<T> : IMotionDragConnectionReceiver<T>
                 //    st2.ResetTranslationImmedietly();
                 //}
                 OnItemMovingInContainer(ItemDragIndex, newIdx);
-                ItemsSourceProperty.RemoveAt(ItemDragIndex);
-                ItemsSourceProperty.Insert(newIdx, item);
+                TargetCollection.RemoveAt(ItemDragIndex);
+                TargetCollection.Insert(newIdx, item);
                 OnItemMovedInContainer(ItemDragIndex, newIdx);
             }
 
@@ -99,9 +99,8 @@ partial class MotionDragContainer<T> : IMotionDragConnectionReceiver<T>
             //}
             OnItemDroppingFromAnotherContainer(sender, item, senderIndex, newIdx);
             await ((MotionDragReorderContainerDropManager)dropManager).RemoveItemFromHostAsync();
-            if (newIdx > ItemsSourceProperty.Count) newIdx = ItemsSourceProperty.Count;
-            var itemSource = ItemsSource;
-            ItemsSourceProperty.Insert(newIdx, item);
+            if (newIdx > TargetCollection.Count) newIdx = TargetCollection.Count;
+            TargetCollection.Insert(newIdx, item);
             OnItemDropFromAnotherContainer(sender, item, senderIndex, newIdx);
             def.Complete();
         }
@@ -111,7 +110,7 @@ partial class MotionDragContainer<T> : IMotionDragConnectionReceiver<T>
         mousePos = dragPosition.MousePositionToContainer;
         if (mousePos.X > 0 && mousePos.X < ActualWidth && mousePos.Y > 0 && mousePos.Y < ActualHeight)
         {
-            if (ReorderOrientationProperty.Value is Orientation.Vertical)
+            if (ReorderOrientation is Orientation.Vertical)
             {
                 itemOffset.X -= dragPosition.MousePositionToContainer.X - (dragPositionOriginal.MouseOffset.X - dragPositionOriginal.OriginalItemRect.X);
             }

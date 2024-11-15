@@ -1,21 +1,16 @@
 ﻿using CommunityToolkit.WinUI;
-using Get.Data.Helpers;
-using Get.Data.Properties;
+using Get.Data.Collections.Update;
 using Get.UI.Data;
 using Gtudios.UI.MotionDrag;
-using Get.EasyCSharp;
-using Get.Data.Collections;
 namespace Gtudios.UI.MotionDragContainers;
-
-public partial class MotionDragContainer<T> : TwoWaySelectableItemsTemplatedControl<Grid, T, MotionDragItem<T>>
+[AutoProperty]
+public partial class MotionDragContainer<T> : TemplateControl<Grid>
 {
-    public Property<Orientation> ReorderOrientationProperty { get; } = new(default);
-    public Property<MotionDragConnectionContext<T>?> ConnectionContextProperty { get; } = new(new());
-    public MotionDragConnectionContext<T>? ConnectionContext
-    {
-        get => ConnectionContextProperty.Value;
-        set => ConnectionContextProperty.Value = value;
-    }
+    public IProperty<IUpdateCollection<T>> TargetCollectionProperty { get; }
+        = Auto<IUpdateCollection<T>>(new UpdateCollection<T>());
+    public IProperty<Orientation> ReorderOrientationProperty { get; } = Auto<Orientation>(default);
+    public IProperty<MotionDragConnectionContext<T>?> ConnectionContextProperty { get; }
+        = Auto<MotionDragConnectionContext<T>?>(new());
     public MotionDragContainer()
     {
         AllowDrop = true;
@@ -45,9 +40,10 @@ public partial class MotionDragContainer<T> : TwoWaySelectableItemsTemplatedCont
     {
         var itemIdx = ChildContainers.IndexOf(item);
         if (itemIdx >= 0)
-            return ItemsSourceProperty[itemIdx];
+            return TargetCollection[itemIdx];
         return default;
     }
+    public UIElementCollection ChildContainers => Container.Children;
 }
 partial class MotionDragReorderContainerController<T>(MotionDragContainer<T> self)
 {
@@ -64,10 +60,10 @@ partial class MotionDragReorderContainerController<T>(MotionDragContainer<T> sel
     public Point PositionOfItemAtIndex(int index)
     {
         bool afterLast = false;
-        if (index >= self.ItemsSourceProperty.Count)
+        if (index >= self.TargetCollection.Count)
         {
             afterLast = true;
-            index = self.ItemsSourceProperty.Count - 1;
+            index = self.TargetCollection.Count - 1;
         }
         if (self.ChildContainers[index] is not { } curItem || curItem.FindDescendantOrSelf<MotionDragItem<T>>() is not { } st)
             throw new InvalidOperationException();
@@ -75,13 +71,13 @@ partial class MotionDragReorderContainerController<T>(MotionDragContainer<T> sel
         var position = curItem.TransformToVisual(self.Container).TransformPoint(default);
         if (afterLast)
         {
-            return self.ReorderOrientationProperty.Value is Orientation.Horizontal ?
+            return self.ReorderOrientation is Orientation.Horizontal ?
                 new(position.X + curItem.ActualSize.X, positions[index]) :
                 new(positions[index], position.Y + curItem.ActualSize.Y);
         }
         else
         {
-            return self.ReorderOrientationProperty.Value is Orientation.Horizontal ?
+            return self.ReorderOrientation is Orientation.Horizontal ?
                 new(positions[index], position.Y) :
                 new(position.X, positions[index]);
         }
@@ -90,13 +86,13 @@ partial class MotionDragReorderContainerController<T>(MotionDragContainer<T> sel
     [MemberNotNull(nameof(positionsremoved))]
     void UpdateAnimated()
     {
-        var orientation = self.ReorderOrientationProperty.Value;
+        var orientation = self.ReorderOrientation;
 
         Point PointAt(double tran) => orientation is Orientation.Horizontal ? new(tran, 0) : new(0, tran);
         double TranAt(Point pt) => orientation is Orientation.Horizontal ? pt.X : pt.Y;
 
         var shift = PointAt(shiftAmount);
-        var itemCount = self.ItemsSourceProperty.Count;
+        var itemCount = self.TargetCollection.Count;
         if (positions is null || positions.Length != itemCount + 1)
             positions = new double[itemCount + 1];
         if (positionsremoved is null || positionsremoved.Length != itemCount + 1)
@@ -182,7 +178,7 @@ partial class MotionDragReorderContainerController<T>(MotionDragContainer<T> sel
     }
     public void Reset()
     {
-        startRemoveIndex = startShiftIndex = self.ItemsSourceProperty.Count;
+        startRemoveIndex = startShiftIndex = self.TargetCollection.Count;
         shiftAmount = 0;
         positions = positionsremoved = positionsthreshold = null;
         int i = 0;
@@ -195,8 +191,8 @@ partial class MotionDragReorderContainerController<T>(MotionDragContainer<T> sel
     {
         if (positionsthreshold is null) UpdateAnimated();
         SelfNote.DebugBreakOnShift();
-        var pos = self.ReorderOrientationProperty.Value is Orientation.Vertical ? posY : posX;
-        var idx = Array.BinarySearch(positionsthreshold, pos);
+        var pos = self.ReorderOrientation is Orientation.Vertical ? posY : posX;
+        var idx = Array.BinarySearch(positionsthreshold!, pos);
         if (idx < 0)
         {
             idx = ~idx;

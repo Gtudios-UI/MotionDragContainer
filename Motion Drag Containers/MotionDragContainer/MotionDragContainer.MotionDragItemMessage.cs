@@ -13,7 +13,7 @@ partial class MotionDragContainer<T>
     Point translationXamlRoot = default;
     Rect itemRect;
     int ItemDragIndex = -1;
-    T DraggingObject;
+    T DraggingObject = default!;
     bool isCanceled = false;
 
     internal void MotionDragItemManipulationStarted(object sender, ManipulationStartedRoutedEventArgs e)
@@ -39,7 +39,7 @@ partial class MotionDragContainer<T>
         var idx = ChildContainers.IndexOf((MotionDragItem<T>)ele);
         AnimationController.Reset();
         AnimationController.StartRemoveIndex = ItemDragIndex = idx;
-        DraggingObject = ItemsSourceProperty[idx];
+        DraggingObject = TargetCollection[idx];
 
         Popup.Translation = new((float)translationRoot.X, (float)translationRoot.Y, 0);
         Popup.IsOpen = true;
@@ -132,7 +132,7 @@ partial class MotionDragContainer<T>
 
         Task RemoveItemAsync()
         {
-            ItemsSourceProperty.RemoveAt(ItemDragIndex);
+            TargetCollection.RemoveAt(ItemDragIndex);
             AnimationController.Reset();
             return Task.CompletedTask;
         }

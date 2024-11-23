@@ -4,7 +4,7 @@ using Microsoft.UI.Xaml.Controls;
 using System.Diagnostics;
 
 namespace Get.UI.Controls.Panels;
-
+[AutoProperty]
 public partial class OrientedStack : NamedPanel
 {
     public static AttachedProperty<DependencyObject, GridUnitType> LengthTypeProperty { get; } = new(default);
@@ -16,11 +16,16 @@ public partial class OrientedStack : NamedPanel
         LengthValueProperty.ValueChanged += OnLengthValueChanged;
         LengthProperty.ValueChanged += OnLengthChanged;
     }
-    public Property<Orientation> OrientationProperty { get; } = new(default);
-    public Orientation Orientation { get => OrientationProperty.Value; set => OrientationProperty.Value = value; }
+    public IProperty<Orientation> OrientationProperty { get; } = Auto<Orientation>(default);
+    public IProperty<double> SpacingProperty { get; } = Auto<double>(0);
     public OrientedStack()
     {
         OrientationProperty.ValueChanged += OnOrientationChanged;
+    }
+    public OrientedStack(Orientation orientation = default, double spacing = 0) : this()
+    {
+        Orientation = orientation;
+        Spacing = spacing;
     }
     static void OnLengthTypeChanged(DependencyObject obj, GridUnitType oldValue, GridUnitType newValue)
     {
@@ -70,8 +75,11 @@ public partial class OrientedStack : NamedPanel
         List<(double star, UIElement ele)> starList = new(count);
 
         double totalAbsolutePixel = 0, totalStar = 0, maxOpposite = 0;
+        int visibleChildren = 0;
         foreach (var child in Children)
         {
+            if (child.Visibility is not Visibility.Visible) continue;
+            visibleChildren++;
             var length = LengthProperty.GetValue(child);
             if (length.IsAuto)
             {
@@ -86,6 +94,11 @@ public partial class OrientedStack : NamedPanel
             {
                 totalAbsolutePixel += length.Value;
             }
+        }
+        // add spacing as part of absolute pixel
+        if (visibleChildren > 1)
+        {
+            totalAbsolutePixel += (visibleChildren - 1) * Spacing;
         }
         foreach (var (pixel, child) in pixelList)
         {
@@ -148,8 +161,11 @@ public partial class OrientedStack : NamedPanel
         var panelSize = SizeToOF(finalSize);
         var panelRemainingSize = panelSize;
         double totalAbsolutePixel = 0, totalStar = 0;
+        int visibleChildren = 0;
         foreach (var child in Children)
         {
+            if (child.Visibility is not Visibility.Visible) continue;
+            visibleChildren++;
             var length = LengthProperty.GetValue(child);
             if (length.IsAuto)
             {
@@ -165,6 +181,11 @@ public partial class OrientedStack : NamedPanel
                 totalAbsolutePixel += length.Value;
             }
         }
+        // add spacing as part of absolute pixel
+        if (visibleChildren > 1)
+        {
+            totalAbsolutePixel += (visibleChildren - 1) * Spacing;
+        }
         panelRemainingSize.Along -= totalAbsolutePixel;
         panelRemainingSize.Along = Math.Max(panelRemainingSize.Along, 0);
         double alongOffset = 0;
@@ -175,6 +196,7 @@ public partial class OrientedStack : NamedPanel
         
         foreach (var child in Children)
         {
+            if (child.Visibility is not Visibility.Visible) continue;
             var length = LengthProperty.GetValue(child);
             if (length.IsAuto)
             {
@@ -183,8 +205,8 @@ public partial class OrientedStack : NamedPanel
                     OFToPoint((alongOffset, 0)),
                     OFToSize((desiredSize.Along, panelRemainingSize.Opposite))
                 ));
-                alongOffset += desiredSize.Along;
-                panelRemainingSize.Along -= desiredSize.Along;
+                alongOffset += desiredSize.Along + Spacing;
+                panelRemainingSize.Along -= desiredSize.Along + Spacing;
             }
             else if (length.IsStar)
             {
@@ -193,8 +215,8 @@ public partial class OrientedStack : NamedPanel
                     OFToPoint((alongOffset, 0)),
                     OFToSize((computedLength, panelRemainingSize.Opposite))
                 ));
-                alongOffset += computedLength;
-                panelRemainingSize.Along -= computedLength;
+                alongOffset += computedLength + Spacing;
+                panelRemainingSize.Along -= computedLength + Spacing;
             }
             else
             {
@@ -202,8 +224,8 @@ public partial class OrientedStack : NamedPanel
                     OFToPoint((alongOffset, 0)),
                     OFToSize((length.Value, panelRemainingSize.Opposite))
                 ));
-                alongOffset += length.Value;
-                panelRemainingSize.Along -= length.Value;
+                alongOffset += length.Value + Spacing;
+                panelRemainingSize.Along -= length.Value + Spacing;
             }
         }
         panelRemainingSize.Along = Math.Max(panelRemainingSize.Along, 0);

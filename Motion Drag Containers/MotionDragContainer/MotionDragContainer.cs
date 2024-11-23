@@ -1,13 +1,26 @@
 ﻿using CommunityToolkit.WinUI;
-using Get.Data.Collections.Update;
-using Get.UI.Data;
-using Gtudios.UI.MotionDrag;
+using Get.Data.Bundles;
 namespace Gtudios.UI.MotionDragContainers;
 [AutoProperty]
 public partial class MotionDragContainer<T> : TemplateControl<Grid>
 {
+    public IProperty<double> EndPaddingProperty { get; } = Auto(0d);
     public IProperty<IUpdateCollection<T>> TargetCollectionProperty { get; }
         = Auto<IUpdateCollection<T>>(new UpdateCollection<T>());
+    public IProperty<IDataTemplate<T, MotionDragItem<T>>> ItemTemplateProperty { get; }
+        = Auto<IDataTemplate<T, MotionDragItem<T>>>(new DataTemplate<T, MotionDragItem<T>>(x => 
+            new MotionDragItem<T>
+            {
+                ContentBundle = new ContentBundle<T, UIElement>(x.CurrentValue)
+                {
+                    ContentTemplate = DataTemplates.TextBlockUIElement<T>(),
+                }
+            }
+            .WithCustomCode(
+                mdi =>
+                    mdi.ContentBundle!.ContentProperty.BindOneWay(x)
+            )
+        ));
     public IProperty<Orientation> ReorderOrientationProperty { get; } = Auto<Orientation>(default);
     public IProperty<MotionDragConnectionContext<T>?> ConnectionContextProperty { get; }
         = Auto<MotionDragConnectionContext<T>?>(new());
@@ -18,9 +31,12 @@ public partial class MotionDragContainer<T> : TemplateControl<Grid>
         ConnectionContextProperty.ValueChanging += OnConnectionContextChanged;
         Loaded += MotionDragContainer_Loaded;
         Unloaded += MotionDragContainer_Unloaded;
+        var ChildContainers = new UpdateCollection<MotionDragItem<T>>();
+        var itemsBundle = new ItemsBundle<T, MotionDragItem<T>>();
+        itemsBundle.ItemsSourceProperty.BindOneWay(TargetCollectionProperty);
+        itemsBundle.ItemTemplateProperty!.BindOneWay(ItemTemplateProperty);
+        this.ChildContainers = itemsBundle.OutputContent;
     }
-
-    
 
     //int curItemIndex;
     //int curHoverItemIndex;
@@ -43,7 +59,7 @@ public partial class MotionDragContainer<T> : TemplateControl<Grid>
             return TargetCollection[itemIdx];
         return default;
     }
-    public UIElementCollection ChildContainers => Container.Children;
+    public IGDReadOnlyCollection<MotionDragItem<T>> ChildContainers { get; }
 }
 partial class MotionDragReorderContainerController<T>(MotionDragContainer<T> self)
 {
@@ -98,7 +114,7 @@ partial class MotionDragReorderContainerController<T>(MotionDragContainer<T> sel
         if (positionsremoved is null || positionsremoved.Length != itemCount + 1)
             positionsremoved = new double[itemCount + 1];
         if (positionsthreshold is null || positionsthreshold.Length != itemCount - 1)
-            positionsthreshold = new double[itemCount - 1];
+            positionsthreshold = new double[itemCount== 0 ? 0 : itemCount - 1];
         if (positionsreal is null || positionsreal.Length != itemCount)
             positionsreal = new double[itemCount];
         for (int i = 0; i < itemCount; i++)
@@ -124,7 +140,7 @@ partial class MotionDragReorderContainerController<T>(MotionDragContainer<T> sel
             positions[i] = positionsremoved[i] = positionsreal[i] = TranAt(position) + TranAt(translationAmount);
             // positions[i] = TranAt(position) + TranAt(translationAmount);
         }
-        if (self.ChildContainers[itemCount - 1] is { } lastItem)
+        if (itemCount >= 1 && self.ChildContainers[itemCount - 1] is { } lastItem)
         {
             positions[itemCount] = positions[itemCount - 1] +
                     (orientation is Orientation.Horizontal ? lastItem.ActualSize.X : lastItem.ActualSize.Y);
@@ -182,7 +198,7 @@ partial class MotionDragReorderContainerController<T>(MotionDragContainer<T> sel
         shiftAmount = 0;
         positions = positionsremoved = positionsthreshold = null;
         int i = 0;
-        while (self.ChildContainers[i++]?.FindDescendantOrSelf<MotionDragItem<T>>() is { } st2)
+        while (i < self.ChildContainers.Count && self.ChildContainers[i++].FindDescendantOrSelf<MotionDragItem<T>>() is { } st2)
         {
             st2.ResetTranslationImmedietly();
         }

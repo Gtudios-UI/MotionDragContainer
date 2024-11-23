@@ -12,7 +12,16 @@ global using Get.Data.Properties;
 global using Get.EasyCSharp;
 global using Get.Data.Collections;
 global using Get.Data.UIModels;
+global using Get.Data.Collections.Update;
+global using Get.Data.DataTemplates;
+global using Get.Data.Helpers;
+global using Get.UI.Data;
+global using Gtudios.UI.MotionDrag;
+global using Get.Data.Bindings.Linq;
 global using static Get.Data.Properties.AutoTyper;
+global using static Get.Data.XACL.QuickBindingExtension;
+global using static Get.UI.Data.QuickCreate;
+global using DataTemplate = Get.Data.DataTemplates.DataTemplate;
 
 namespace Gtudios.UI.MotionDragContainers;
 internal static class SelfNote

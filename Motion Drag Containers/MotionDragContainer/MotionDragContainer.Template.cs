@@ -1,6 +1,8 @@
 
 using Get.Data.Collections;
 using Get.Data.Collections.Conversion;
+using Get.Data.Properties;
+using Get.Data.XACL;
 using Get.UI.Controls.Panels;
 using Get.UI.Data;
 
@@ -19,7 +21,9 @@ partial class MotionDragContainer<T>
     {
         TempalteParts = ControlTemplate(this, TemplatedParent);
         // ...
-        
+        ((IUpdateReadOnlyCollection<MotionDragItem<T>>)ChildContainers).Bind(
+            TempalteParts.Container.Children.AsGDCollection(), x => x
+        );
     }
     readonly struct Wrapper(IGDCollection<UIElement> ele) : IGDCollection<MotionDragItem<T>>
     {

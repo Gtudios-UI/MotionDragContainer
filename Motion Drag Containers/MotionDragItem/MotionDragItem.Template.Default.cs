@@ -5,13 +5,11 @@ using Get.UI.Data;
 namespace Gtudios.UI.MotionDragContainers;
 partial class MotionDragItem<TContent>
 {
-    public readonly static ExternalControlTemplate<MotionDragItemTempalteParts, MotionDragItem<TContent>, Border> DefaultTemplate =
+    public static ExternalControlTemplate<MotionDragItemTempalteParts, MotionDragItem<TContent>, Border> DefaultTemplate { get; } =
         (@this, border) =>
         {
             var RootElement = border;
             border.Background = new SolidColorBrush(Colors.Transparent);
-            border.BorderBrush = new SolidColorBrush(Colors.White);
-            border.BorderThickness = new(0, 1, 0, 1);
             border.RenderTransform = new CompositeTransform().AssignTo(out var RootTransform);
             var TranslationResetStoryboard = new Storyboard
             {
@@ -66,15 +64,12 @@ partial class MotionDragItem<TContent>
                 Storyboard.SetTarget(x, RootTransform);
                 Storyboard.SetTargetProperty(x, nameof(RootTransform.TranslateY));
             }).AssignTo(out var AnimatingTranslateY));
+
             border.Child = new ContentBundleControl
             {
                 Foreground = new SolidColorBrush(Colors.White),
-                Margin = new(5)
-            }
-            .WithCustomCode(x =>
-            {
-                x.ContentBundleProperty.BindOneWay(@this.ContentBundleProperty.Select(x => x as IContentBundle<UIElement>));
-            });
+                ContentBundleBinding = OneWay(@this.ContentBundleProperty.Select(x => x as IContentBundle<UIElement>))
+            };
 
             return new(
                 RootElement: RootElement,
@@ -85,4 +80,15 @@ partial class MotionDragItem<TContent>
                 AnimatingTranslateY: AnimatingTranslateY
             );
         };
+    public static ExternalControlTemplate<MotionDragItemTempalteParts, MotionDragItem<TContent>, Border> DefaultTemplateStyled { get; } =
+        (@this, border) =>
+        {
+            var x = DefaultTemplate(@this, border);
+            border.BorderBrush = Solid(Colors.White);
+            border.BorderThickness = new(0, 1, 0, 1);
+            ((FrameworkElement)border.Child).Margin = new(5);
+            return x;
+        };
+
+
 }

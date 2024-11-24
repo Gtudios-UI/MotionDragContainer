@@ -58,7 +58,6 @@ public partial class OrientedStack : NamedPanel
     }
     void OnChildVisibilityChanged(Visibility _, Visibility _1)
     {
-        UpdateLayout();
         InvalidateArrange();
         InvalidateMeasure();
     }

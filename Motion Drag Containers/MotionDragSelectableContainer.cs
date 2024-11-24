@@ -1,7 +1,9 @@
 #nullable enable
 using CommunityToolkit.WinUI;
 using Get.Data.Bindings.Linq;
+using Get.Data.Bundles;
 using Get.Data.Collections;
+using Get.Data.Collections.Linq;
 using Get.Data.Collections.Update;
 
 namespace Gtudios.UI.MotionDragContainers;
@@ -33,18 +35,27 @@ public partial class MotionDragSelectableContainer<T> : MotionDragContainer<T>, 
             }
         };
         SelectionManagerProperty.SelectPath(x => x.SelectedIndexProperty).ValueChanged += OnSelectedIndexChanged;
+        ((IUpdateItemsBundleOutputCollection<MotionDragItem<T>>)ChildContainers).ItemsChanged +=
+            _ => OnSelectedIndexChanged(SelectedIndex, SelectedIndex);
     }
 
     void OnSelectedIndexChanged(int oldValue, int newValue)
     {
-        if (oldValue is >= 0 && ChildContainers[oldValue] is UIElement container)
+        foreach (var container in ChildContainers.AsEnumerable())
         {
             if (Canvas.GetZIndex(container) is 2)
                 Canvas.SetZIndex(container, 0);
             if (container.FindDescendantOrSelf<MotionDragSelectableItem<T>>() is { } item)
                 item.IsPrimarySelected = false;
         }
-        if (newValue is >= 0 && ChildContainers[newValue] is UIElement container2)
+        //if (oldValue is >= 0 && oldValue < ChildContainers.Count && ChildContainers[oldValue] is UIElement container)
+        //{
+        //    if (Canvas.GetZIndex(container) is 2)
+        //        Canvas.SetZIndex(container, 0);
+        //    if (container.FindDescendantOrSelf<MotionDragSelectableItem<T>>() is { } item)
+        //        item.IsPrimarySelected = false;
+        //}
+        if (newValue is >= 0 && newValue < ChildContainers.Count && ChildContainers[newValue] is UIElement container2)
         {
             if (Canvas.GetZIndex(container2) is 0)
                 Canvas.SetZIndex(container2, 2);

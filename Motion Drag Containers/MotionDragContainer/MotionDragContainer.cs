@@ -8,18 +8,15 @@ public partial class MotionDragContainer<T> : TemplateControl<Grid>
     public IProperty<IUpdateCollection<T>> TargetCollectionProperty { get; }
         = Auto<IUpdateCollection<T>>(new UpdateCollection<T>());
     public IProperty<IDataTemplate<T, MotionDragItem<T>>> ItemTemplateProperty { get; }
-        = Auto<IDataTemplate<T, MotionDragItem<T>>>(new DataTemplate<T, MotionDragItem<T>>(x => 
+        = Auto<IDataTemplate<T, MotionDragItem<T>>>(new DataTemplate<T, MotionDragItem<T>>(x =>
             new MotionDragItem<T>
             {
                 ContentBundle = new ContentBundle<T, UIElement>(x.CurrentValue)
                 {
                     ContentTemplate = DataTemplates.TextBlockUIElement<T>(),
+                    ContentBinding = OneWay(x)
                 }
             }
-            .WithCustomCode(
-                mdi =>
-                    mdi.ContentBundle!.ContentProperty.BindOneWay(x)
-            )
         ));
     public IProperty<Orientation> ReorderOrientationProperty { get; } = Auto<Orientation>(default);
     public IProperty<MotionDragConnectionContext<T>?> ConnectionContextProperty { get; }

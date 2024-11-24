@@ -73,6 +73,9 @@ public partial class MotionDragSelectableContainer<T> : MotionDragContainer<T>, 
     }
     internal bool IsPrimarySelected(MotionDragSelectableItem<T> item)
     {
+        var idx = SelectedIndex;
+        if (idx < 0) return false;
+        if (idx > ChildContainers.Count) return false;
         return ChildContainers[SelectedIndex]?
             .FindDescendantOrSelf<MotionDragSelectableItem<T>>(
                 x => x == item

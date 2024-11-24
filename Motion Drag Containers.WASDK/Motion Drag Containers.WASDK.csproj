@@ -13,7 +13,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="CommunityToolkit.WinUI.Extensions" Version="8.0.240109" />
-		<PackageReference Include="Get.Data" Version="1.1.2" />
+		<PackageReference Include="Get.Data" Version="1.1.5" />
 		<PackageReference Include="Get.Data.SourceGenerators" Version="1.1.1" />
 		<PackageReference Include="Get.EasyCSharp.Generator" Version="1.2.0" IncludeAssets="Analyzer" ExcludeAssets="All" />
 		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22621.756" />

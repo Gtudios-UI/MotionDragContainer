@@ -1,3 +1,4 @@
+using Get.Data.Bindings;
 using Get.Data.Properties;
 using Get.UI.Data;
 using Microsoft.UI.Xaml.Controls;
@@ -10,6 +11,7 @@ public partial class OrientedStack : NamedPanel
     public static AttachedProperty<DependencyObject, GridUnitType> LengthTypeProperty { get; } = new(default);
     public static AttachedProperty<DependencyObject, double> LengthValueProperty { get; } = new(default);
     public static AttachedProperty<DependencyObject, GridLength> LengthProperty { get; } = new(default);
+    public static AttachedProperty<DependencyObject, bool> VisibilityTrackingProperty { get; } = new(false);
     static OrientedStack()
     {
         LengthTypeProperty.ValueChanged += OnLengthTypeChanged;
@@ -21,6 +23,7 @@ public partial class OrientedStack : NamedPanel
     public OrientedStack()
     {
         OrientationProperty.ValueChanged += OnOrientationChanged;
+        
     }
     public OrientedStack(Orientation orientation = default, double spacing = 0) : this()
     {
@@ -53,6 +56,15 @@ public partial class OrientedStack : NamedPanel
     {
         UpdateLayout();
     }
+    void OnChildVisibilityChanged(Visibility _, Visibility _1)
+    {
+        UpdateLayout();
+        InvalidateArrange();
+        InvalidateMeasure();
+    }
+    readonly Dictionary<UIElement, IProperty<Visibility>> CachedChildrenVisibility = [];
+    readonly HashSet<UIElement> CachedChildren = [];
+    static readonly IPropertyDefinition<UIElement, Visibility> VisibilityPropertyDefinition = VisibilityProperty.AsPropertyDefinition<UIElement, Visibility>();
     protected override Size MeasureOverride(Size availableSize)
     {
 #if DEBUG
@@ -78,6 +90,15 @@ public partial class OrientedStack : NamedPanel
         int visibleChildren = 0;
         foreach (var child in Children)
         {
+            if (VisibilityTrackingProperty.GetValue(child))
+            {
+                if (!CachedChildren.Remove(child))
+                {
+                    var prop = VisibilityPropertyDefinition.GetProperty(child);
+                    CachedChildrenVisibility[child] = prop;
+                    prop.ValueChanged += OnChildVisibilityChanged;
+                }
+            }
             if (child.Visibility is not Visibility.Visible) continue;
             visibleChildren++;
             var length = LengthProperty.GetValue(child);
@@ -95,6 +116,16 @@ public partial class OrientedStack : NamedPanel
                 totalAbsolutePixel += length.Value;
             }
         }
+        // these children are no longer here
+        foreach (var child in CachedChildren)
+        {
+            if (CachedChildrenVisibility.Remove(child, out var property))
+                property.ValueChanged -= OnChildVisibilityChanged;
+            if (property is IDisposable disposable)
+                disposable.Dispose();
+        }
+        CachedChildren.Clear();
+        // ...
         // add spacing as part of absolute pixel
         if (visibleChildren > 1)
         {

@@ -26,6 +26,5 @@
     <Compile Include="$(MSBuildThisFileDirectory)MotionDragSelectableItem\MotionDragSelectableItem.Template.Default.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MotionDragSelectableItem\MotionDragSelectableItem.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Panels\LayoutDebugger.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Panels\OrientedStack\OrientedStack.cs" />
   </ItemGroup>
 </Project>

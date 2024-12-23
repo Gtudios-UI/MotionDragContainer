@@ -11,10 +11,13 @@ public partial class MotionDragContainer<T> : TemplateControl<Grid>
         = Auto<IDataTemplate<T, MotionDragItem<T>>>(new DataTemplate<T, MotionDragItem<T>>(x =>
             new MotionDragItem<T>
             {
-                ContentBundle = new ContentBundle<T, UIElement>(x.CurrentValue)
+                Content = new ContentBundleControl
                 {
-                    ContentTemplate = DataTemplates.TextBlockUIElement<T>(),
-                    ContentBinding = OneWay(x)
+                    ContentBundle = new ContentBundle<T, UIElement>(x.CurrentValue)
+                    {
+                        ContentTemplate = DataTemplates.TextBlockUIElement<T>(),
+                        ContentBinding = OneWay(x)
+                    }
                 }
             }
         ));

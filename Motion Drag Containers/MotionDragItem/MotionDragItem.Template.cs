@@ -17,7 +17,18 @@ partial class MotionDragItem<TContent>
         if (TempalteParts.RootTransform == null) Debugger.Break();
         RootElement.ManipulationMode = ManipulationModes.TranslateX | ManipulationModes.TranslateY;
         InitManipulation();
+        Loaded -= MotionDragItem_Loaded;
+        Loaded += MotionDragItem_Loaded;
     }
+
+    private void MotionDragItem_Loaded(object sender, RoutedEventArgs e)
+    {
+        if (IsLoaded) {
+            var eleVisual = ElementCompositionPreview.GetElementVisual(this);
+            eleVisual.IsVisible = true;
+        }
+    }
+
     MotionDragItemTempalteParts TempalteParts;
     Border RootElement => TempalteParts.RootElement;
     CompositeTransform RootTransform => TempalteParts.RootTransform;

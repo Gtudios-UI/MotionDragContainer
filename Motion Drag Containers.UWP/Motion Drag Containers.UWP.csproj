@@ -1,165 +1,53 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-	<Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="MSBuild.Sdk.Extras">
 	<PropertyGroup>
-		<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-		<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-		<ProjectGuid>{62EC7D54-E65A-4FE4-AAF2-1B0B642E52B5}</ProjectGuid>
-		<OutputType>Library</OutputType>
-		<AppDesignerFolder>Properties</AppDesignerFolder>
-		<RootNamespace>Motion Drag Containers</RootNamespace>
-		<AssemblyName>Motion Drag Containers.UWP</AssemblyName>
-		<DefaultLanguage>en-US</DefaultLanguage>
-		<TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
-		<TargetPlatformVersion Condition=" '$(TargetPlatformVersion)' == '' ">10.0.22621.0</TargetPlatformVersion>
-		<TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
-		<MinimumVisualStudioVersion>14</MinimumVisualStudioVersion>
-		<FileAlignment>512</FileAlignment>
-		<ProjectTypeGuids>{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+		<TargetFrameworks>uap10.0.17763</TargetFrameworks>
+		<TargetPlatformBaseVersion>10.0</TargetPlatformBaseVersion>
+		<TargetPlatformRevision>22621</TargetPlatformRevision>
+		<TargetPlatformMinRevision>17763</TargetPlatformMinRevision>
+		<TargetPlatformVersion>$(TargetPlatformBaseVersion).$(TargetPlatformRevision).0</TargetPlatformVersion>
+		<TargetPlatformMinVersion>$(TargetPlatformBaseVersion).$(TargetPlatformMinRevision).0</TargetPlatformMinVersion>
+		<ExtrasUwpMetaPackageVersion>6.2.14</ExtrasUwpMetaPackageVersion>
+		<GenerateLibraryLayout>true</GenerateLibraryLayout>
+		<ExtrasEnableDefaultXamlItems>true</ExtrasEnableDefaultXamlItems>
+		<AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+		<Platforms>x64;ARM64</Platforms>
+		<RuntimeIdentifiers>win10-x64;win-arm64</RuntimeIdentifiers>
 		<LangVersion>12</LangVersion>
+		<Nullable>enable</Nullable>
+		<Version>1.0.4</Version>
+		<PackageOutputPath>D:\Programming\VS\.LocalNugetPackages</PackageOutputPath>
+		<RootNamespace>Gtudios.UI.MotionDragContainers</RootNamespace>
+		<AssemblyName>Gtudios.UI.MotionDragContainers.UWP</AssemblyName>
+		<WebView2NeverCopyLoaderDllToOutputDirectory>true</WebView2NeverCopyLoaderDllToOutputDirectory>
 	</PropertyGroup>
-	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-		<PlatformTarget>AnyCPU</PlatformTarget>
-		<DebugSymbols>true</DebugSymbols>
-		<DebugType>full</DebugType>
-		<Optimize>false</Optimize>
-		<OutputPath>bin\Debug\</OutputPath>
-		<DefineConstants>DEBUG;TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
-		<ErrorReport>prompt</ErrorReport>
-		<WarningLevel>4</WarningLevel>
-	</PropertyGroup>
-	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-		<PlatformTarget>AnyCPU</PlatformTarget>
-		<DebugType>pdbonly</DebugType>
-		<Optimize>true</Optimize>
-		<OutputPath>bin\Release\</OutputPath>
-		<DefineConstants>TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
-		<ErrorReport>prompt</ErrorReport>
-		<WarningLevel>4</WarningLevel>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
-		<PlatformTarget>x86</PlatformTarget>
-		<DebugSymbols>true</DebugSymbols>
-		<OutputPath>bin\x86\Debug\</OutputPath>
-		<DefineConstants>DEBUG;TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
-		<NoWarn>;2008</NoWarn>
-		<DebugType>full</DebugType>
-		<UseVSHostingProcess>false</UseVSHostingProcess>
-		<ErrorReport>prompt</ErrorReport>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
-		<PlatformTarget>x86</PlatformTarget>
-		<OutputPath>bin\x86\Release\</OutputPath>
-		<DefineConstants>TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
-		<Optimize>true</Optimize>
-		<NoWarn>;2008</NoWarn>
-		<DebugType>pdbonly</DebugType>
-		<UseVSHostingProcess>false</UseVSHostingProcess>
-		<ErrorReport>prompt</ErrorReport>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|ARM'">
-		<PlatformTarget>ARM</PlatformTarget>
-		<DebugSymbols>true</DebugSymbols>
-		<OutputPath>bin\ARM\Debug\</OutputPath>
-		<DefineConstants>DEBUG;TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
-		<NoWarn>;2008</NoWarn>
-		<DebugType>full</DebugType>
-		<UseVSHostingProcess>false</UseVSHostingProcess>
-		<ErrorReport>prompt</ErrorReport>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|ARM'">
-		<PlatformTarget>ARM</PlatformTarget>
-		<OutputPath>bin\ARM\Release\</OutputPath>
-		<DefineConstants>TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
-		<Optimize>true</Optimize>
-		<NoWarn>;2008</NoWarn>
-		<DebugType>pdbonly</DebugType>
-		<UseVSHostingProcess>false</UseVSHostingProcess>
-		<ErrorReport>prompt</ErrorReport>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|ARM64'">
-		<PlatformTarget>ARM64</PlatformTarget>
-		<DebugSymbols>true</DebugSymbols>
-		<OutputPath>bin\ARM64\Debug\</OutputPath>
-		<DefineConstants>DEBUG;TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
-		<NoWarn>;2008</NoWarn>
-		<DebugType>full</DebugType>
-		<UseVSHostingProcess>false</UseVSHostingProcess>
-		<ErrorReport>prompt</ErrorReport>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|ARM64'">
-		<PlatformTarget>ARM64</PlatformTarget>
-		<OutputPath>bin\ARM64\Release\</OutputPath>
-		<DefineConstants>TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
-		<Optimize>true</Optimize>
-		<NoWarn>;2008</NoWarn>
-		<DebugType>pdbonly</DebugType>
-		<UseVSHostingProcess>false</UseVSHostingProcess>
-		<ErrorReport>prompt</ErrorReport>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
-		<PlatformTarget>x64</PlatformTarget>
-		<DebugSymbols>true</DebugSymbols>
-		<OutputPath>bin\x64\Debug\</OutputPath>
-		<DefineConstants>DEBUG;TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
-		<NoWarn>;2008</NoWarn>
-		<DebugType>full</DebugType>
-		<UseVSHostingProcess>false</UseVSHostingProcess>
-		<ErrorReport>prompt</ErrorReport>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-		<PlatformTarget>x64</PlatformTarget>
-		<OutputPath>bin\x64\Release\</OutputPath>
-		<DefineConstants>TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
-		<Optimize>true</Optimize>
-		<NoWarn>;2008</NoWarn>
-		<DebugType>pdbonly</DebugType>
-		<UseVSHostingProcess>false</UseVSHostingProcess>
-		<ErrorReport>prompt</ErrorReport>
-	</PropertyGroup>
-	<PropertyGroup>
-		<RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-	</PropertyGroup>
+
+	<!--
+		Bundle the .rd.xml directives as embedded resource so they're picked up automatically.
+		See: https://devblogs.microsoft.com/dotnet/net-native-deep-dive-making-your-library-great/.
+	  -->
 	<ItemGroup>
-		<Compile Include="GlobalUsings.UWP.cs" />
-		<Compile Include="Properties\AssemblyInfo.cs" />
-		<EmbeddedResource Include="Properties\Motion Drag Containers.UWP.rd.xml" />
+		<None Remove="Properties\Gtudios.UI.MotionDragContainers.UWP.rd.xml" />
+		<EmbeddedResource Include="Properties\Gtudios.UI.MotionDragContainers.UWP.rd.xml" />
 	</ItemGroup>
+
 	<ItemGroup>
+		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2792.45" PrivateAssets="all" />
+		<PackageReference Include="Get.Data" Version="1.1.6" />
+		<PackageReference Include="Get.Data.SourceGenerators" Version="1.1.7" />
+		<PackageReference Include="Microsoft.UI.Xaml" Version="2.8.6" />
+		<PackageReference Include="PolySharp" Version="1.14.1" PrivateAssets="all" />
 		<PackageReference Include="CommunityToolkit.Uwp.Extensions">
 			<Version>8.0.240109</Version>
 		</PackageReference>
-		<PackageReference Include="Get.Data" Version="1.1.2" />
-		<PackageReference Include="Get.Data.SourceGenerators" Version="1.1.1" />
 		<PackageReference Include="Get.EasyCSharp.Generator">
 			<Version>1.2.0</Version>
 		</PackageReference>
-		<PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform" Version="6.2.14" />
-		<PackageReference Include="Microsoft.UI.Xaml" Version="2.8.6" />
-		<PackageReference Include="PolySharp" Version="1.14.1" PrivateAssets="all" />
 		<ProjectReference Include="..\MotionDrag\MotionDrag.UWP\MotionDrag.UWP.csproj">
-			<Project>{bafd130d-1ce6-487d-bcb6-9c4b15081a80}</Project>
-			<Name>MotionDrag.UWP</Name>
 		</ProjectReference>
 		<ProjectReference Include="..\UI-Data\UI Data.UWP\UI Data.UWP.csproj">
-			<Project>{c8527070-b494-4f12-9846-ea196bfa9afc}</Project>
-			<Name>UI Data.UWP</Name>
 		</ProjectReference>
 		<ProjectReference Include="..\Windowing\Windowing.UWP\Windowing.UWP.csproj">
-			<Project>{e10cc90c-3207-4a75-84dc-a180b4da9618}</Project>
-			<Name>Windowing.UWP</Name>
 		</ProjectReference>
 	</ItemGroup>
 	<Import Project="..\Motion Drag Containers\Motion Drag Containers.projitems" Label="Shared" />
-	<PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
-		<VisualStudioVersion>14.0</VisualStudioVersion>
-	</PropertyGroup>
-	<Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
-	<!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>

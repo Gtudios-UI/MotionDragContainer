@@ -65,10 +65,10 @@ partial class MotionDragItem<TContent>
                 Storyboard.SetTargetProperty(x, nameof(RootTransform.TranslateY));
             }).AssignTo(out var AnimatingTranslateY));
 
-            border.Child = new ContentBundleControl
+            border.Child = new UIElementContentControl
             {
                 Foreground = new SolidColorBrush(Colors.White),
-                ContentBundleBinding = OneWay(@this.ContentBundleProperty.Select(x => x as IContentBundle<UIElement>))
+                ContentBinding = OneWay(@this.ContentProperty)
             };
 
             return new(

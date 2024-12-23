@@ -9,11 +9,12 @@ partial class MotionDragContainer<T> : IMotionDragConnectionReceiver<T>
         if (!(XamlRoot.IsHostVisible && Visibility is Visibility.Visible))
             return false;
         var ptScreen = GlobalRectangle.WindowPosOffset.Point() + pt;
-        return WinWrapper.Windowing.Window.FromLocation(
+        var winAtLoc = WinWrapper.Windowing.Window.FromLocation(
             (int)ptScreen.X,
             (int)ptScreen.Y
-        ).Root == 
-        WinWrapper.Windowing.Window.FromWindowHandle(Windowing.Window.GetFromXamlRoot(XamlRoot).WindowHandle).Root;
+        );
+        var cur = WinWrapper.Windowing.Window.FromWindowHandle(Windowing.Window.GetFromXamlRoot(XamlRoot).WindowHandle);
+        return winAtLoc.Root == cur.Root;
     }
 
     bool useCached = false; // warning: doesn't work, fix before turning this back to true
@@ -31,6 +32,7 @@ partial class MotionDragContainer<T> : IMotionDragConnectionReceiver<T>
 
     void DragDelta(object? sender, object? item, DragPosition dragPositionIn, ref Point itemOffset)
     {
+        SelfNote.DebugBreakOnShift();
         var dragPosition = dragPositionIn.ToNewContainer(GlobalRectangle);
         SnapDrag(dragPosition, dragPositionIn, ref itemOffset);
         AnimationController.ShiftAmount =

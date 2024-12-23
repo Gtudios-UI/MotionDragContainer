@@ -122,7 +122,7 @@ public partial class MotionDragSelectableContainer<T> : MotionDragContainer<T>, 
         if (shouldSelect)
             PausePreferAlwaysSelectItemProperty = false;
     }
-    bool PausePreferAlwaysSelectItemProperty;
+    bool PausePreferAlwaysSelectItemProperty = false;
 
     T? ISelectableContainer<T?>.SelectedValue { get => SelectionManager.SelectedValue; set => SelfNote.ThrowNotImplemented(); }
 }

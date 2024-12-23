@@ -15,9 +15,10 @@ partial class MotionDragContainer<T>
     int ItemDragIndex = -1;
     T DraggingObject = default!;
     bool isCanceled = false;
-
+    DateTime startMani;
     internal void MotionDragItemManipulationStarted(object sender, ManipulationStartedRoutedEventArgs e)
     {
+        startMani = DateTime.Now;
         e.Handled = true;
         isCanceled = false;
         if (sender is not UIElement ele) return;
@@ -48,6 +49,7 @@ partial class MotionDragContainer<T>
     bool set;
     internal void MotionDragItemManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
     {
+        SelfNote.DebugBreakOnShift();
         e.Handled = true;
         if (isCanceled) return;
         if (WinWrapper.Input.Keyboard.IsKeyDown(WinWrapper.Input.VirtualKey.ESCAPE))
@@ -101,7 +103,7 @@ partial class MotionDragContainer<T>
     {
         public required Func<Task> RemoveItemFunc;
         bool isAlreadyCalled = false;
-        public Task RemoveItemFromHostAsync()
+        public override Task RemoveItemFromHostAsync()
         {
             if (isAlreadyCalled) return Task.CompletedTask;
             isAlreadyCalled = true;
@@ -111,12 +113,22 @@ partial class MotionDragContainer<T>
     internal async void MotionDragItemManipulationCompleted(object sender, ManipulationCompletedRoutedEventArgs e)
     {
         e.Handled = true;
+        if (DateTime.Now - startMani < TimeSpan.FromMilliseconds(200))
+        {
+            // probably was not intentional
+            isCanceled = true;
+            Popup.IsOpen = false;
+            var eleVisual = ElementCompositionPreview.GetElementVisual(ChildContainers[ItemDragIndex]);
+            eleVisual.IsVisible = true;
+            AnimationController.Reset();
+        }
         if (isCanceled)
         {
             isCanceled = false;
             return;
         }
-        var dropManager = new MotionDragReorderContainerDropManager() {
+        var dropManager = new MotionDragReorderContainerDropManager()
+        {
             RemoveItemFunc = RemoveItemAsync
         };
         MotionDragConnectionContext<T>.UnsafeSendDropEvent(
@@ -148,5 +160,15 @@ partial class MotionDragContainer<T>
         //                                      ) * scale + pt.Y)
         //    );
         //AppWindow.GetFromWindowId(hwnd).Move(new() { X = pos.X, Y = pos.Y });
+    }
+    public void ResetAnimation()
+    {
+        //if (!isCanceled) {
+        //    isCanceled = true;
+        //    Popup.IsOpen = false;
+        //    var eleVisual = ElementCompositionPreview.GetElementVisual(ChildContainers[ItemDragIndex]);
+        //    eleVisual.IsVisible = true;
+        //    AnimationController.Reset();
+        //}
     }
 }
